@@ -160,3 +160,5 @@ cython_debug/
 #.idea/
 
 neon_py_bindings/
+
+warp/
