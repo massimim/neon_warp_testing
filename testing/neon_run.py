@@ -44,5 +44,7 @@ neon_types.register()
 with wp.ScopedDevice("cuda:0"):
     # print image info
     print("===== Image info:")
-    idx = DenseIndex(1, 2, 3)
+    idx = DenseIndex(1, 2, 33)
     wp.launch(neon_kernel_test, dim=1, inputs=[idx])
+
+wp.synchronize()
