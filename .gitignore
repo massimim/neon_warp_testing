@@ -162,3 +162,7 @@ cython_debug/
 neon_py_bindings/
 
 warp/
+
+testing/.idea/
+
+.idea/

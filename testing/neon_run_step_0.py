@@ -1,7 +1,9 @@
 import warp as wp
-import py_neon as ne
+
+import wpne_types
 import warp.config
-import wpne
+from wpne_types import DenseIndex
+
 import os
 
 # Get the path of the current script
@@ -15,7 +17,7 @@ print(f"Directory containing the script: {script_dir}")
 
 # print some info about an image
 @wp.kernel
-def neon_kernel_test(idx: wpne.DenseIndex):
+def neon_kernel_test(idx: DenseIndex):
     # this is a Warp array which wraps the image data
     wp.myPrint(idx)
 
@@ -37,12 +39,12 @@ wp.build.add_preprocessor_macro_definition('NEON_WARP_COMPILATION')
 wp.build.clear_kernel_cache()
 
 # !!! DO THIS BEFORE LOADING MODULES OR LAUNCHING KERNELS
-wpne.register()
+neon_types.register()
 
 with wp.ScopedDevice("cuda:0"):
     # print image info
     print("===== Image info:")
-    idx = wpne.DenseIndex(1, 2, 33)
+    idx = DenseIndex(1, 2, 33)
     wp.launch(neon_kernel_test, dim=1, inputs=[idx])
 
 wp.synchronize()
