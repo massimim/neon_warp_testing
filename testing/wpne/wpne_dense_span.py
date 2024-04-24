@@ -2,8 +2,10 @@ import ctypes
 import os
 import warp as wp
 import py_neon as ne
+from wpne_dense_index import DenseIndex as dIndex
 
-class newp_dSpan:
+
+class dSpan:
     # # define variables accessible in kernels (e.g., coord.x)
     vars = {
     }
@@ -12,7 +14,7 @@ class newp_dSpan:
     # - used when packing arguments for kernels (pass-by-value)
     # - binary layout of fields must match native type
     class _type_(ctypes.Structure):
-        _fields_ =  ne.DSpan.help_get_class_fields()
+        _fields_ = ne.DSpan.fields_()
 
         def __init__(self, span):
             self.dataView = span.dataView
@@ -21,7 +23,7 @@ class newp_dSpan:
             self.max_z_in_domain = span.max_z_in_domain
             self.span_dim = span.span_dim
 
-    def __init__(self, s: ne.dSpan):
+    def __init__(self, s: ne.DSpan):
         """
          s is the binding of dSpon fron Neon
         """
@@ -57,26 +59,10 @@ class newp_dSpan:
 
 
 def _register_builtins():
-    # Coord constructor
     wp.context.add_builtin(
-        "DenseIndex_",
-        input_types={"x": int, "y": int, "z": int},
-        value_type=DenseIndex,
-        missing_grad=True,
-    )
-
-    # Color addition
-    wp.context.add_builtin(
-        "myPrint",
-        input_types={"a": DenseIndex},
-        value_type=None,
-        missing_grad=True,
-    )
-
-    wp.context.add_builtin(
-        "myPrint",
-        input_types={"span": newp_dSpan},
-        value_type=DenseIndex,
+        "dSpan_set_and_validata",
+        input_types={"span": dSpan},
+        value_type=dIndex,
         missing_grad=True,
     )
 
