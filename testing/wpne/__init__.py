@@ -1,11 +1,9 @@
 import ctypes
 import os
 import warp as wp
-from wpne_dense_index import DenseIndex
-from wpne_dense_index import DenseIndex as dIndex
-from wpne_dense_span import dSpan
-import wpne_dense_index
-import wpne_dense_span
+
+from wpne.wpne_dense_index import DenseIndex
+from wpne.wpne_dense_span import dSpan
 
 def _add_header(path):
     include_directive = f"#include \"{path}\"\n"
@@ -20,10 +18,8 @@ def _register_headers():
     _add_header(f"{include_path}/dSpan.h")
 
 
-
-
-
 def register():
+    import wpne.wpne_dense_index as dense_index
     _register_headers()
-    wpne_dense_index._register_builtins()
+    dense_index._register_builtins()
     wpne_dense_span._register_builtins()

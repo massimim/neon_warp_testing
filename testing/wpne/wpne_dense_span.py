@@ -2,8 +2,7 @@ import ctypes
 import os
 import warp as wp
 import py_neon as ne
-from wpne_dense_index import DenseIndex as dIndex
-
+import wpne
 
 class dSpan:
     # # define variables accessible in kernels (e.g., coord.x)
@@ -62,7 +61,7 @@ def _register_builtins():
     wp.context.add_builtin(
         "dSpan_set_and_validata",
         input_types={"span": dSpan},
-        value_type=dIndex,
+        value_type=wpne.DenseIndex,
         missing_grad=True,
     )
 

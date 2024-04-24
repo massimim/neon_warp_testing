@@ -1,9 +1,12 @@
+import os
+
 import warp as wp
-import wpne
 import warp.config
 
-import os
+import wpne
 import py_neon as ne
+
+import sys
 
 # Get the path of the current script
 script_path = __file__
@@ -14,21 +17,24 @@ script_dir = os.path.dirname(os.path.abspath(script_path))
 print(f"Directory containing the script: {script_dir}")
 
 
-# print some info about an image
-# @wp.function
+#print some info about an image
+# @wp.func
 # def neon_kernel_test(idx: wpne.DenseIndex):
 #     # this is a Warp array which wraps the image data
 #     wp.myPrint(idx)
 
-# @wp.function
-# def user_foo(idx:wpne.dIndex):
-#     wp.myPrint(idx)
+# @wp.kernel
+# def user_foo_kdfjdkfjdkf(idx: wpne.DenseIndex):
+#     #wp.myPrint(idx)
+#     pass
+
 
 @wp.kernel
 def neon_kernel_test(span: wpne.dSpan):
     # this is a Warp array which wraps the image data
-    idx = wp.dSpan_set_and_validata(span)
-    wp.myPrint(idx)
+    myIdx = wp.dSpan_set_and_validata(span)
+    wp.myPrint(myIdx)
+    # user_foo(idx)
 
 
 wp.config.llvm_cuda = False

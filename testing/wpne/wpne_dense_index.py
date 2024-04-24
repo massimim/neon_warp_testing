@@ -1,6 +1,7 @@
 import ctypes
 import os
 import warp as wp
+import wpne
 
 
 class DenseIndex:
@@ -37,24 +38,22 @@ class DenseIndex:
         return self
 
 
-
 def _register_builtins():
     # Coord constructor
     wp.context.add_builtin(
         "DenseIndex_",
         input_types={"x": int, "y": int, "z": int},
-        value_type=DenseIndex,
+        value_type=wpne.DenseIndex,
         missing_grad=True,
     )
 
     # Color addition
     wp.context.add_builtin(
         "myPrint",
-        input_types={"a": DenseIndex},
+        input_types={"a": wpne.DenseIndex},
         value_type=None,
         missing_grad=True,
     )
-
 
 
 def register():
