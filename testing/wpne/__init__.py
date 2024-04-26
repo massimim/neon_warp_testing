@@ -2,10 +2,10 @@ import ctypes
 import os
 import warp as wp
 
-from wpne.wpne_dense_index import DenseIndex
-from wpne.wpne_dense_span import dSpan
+from wpne.wpne_dense_index import Dense_idx
+from wpne.wpne_dense_span import Dense_span
 
-from py_neon import *
+from py_neon import Dense_grid, Dense_field
 
 def _add_header(path):
     include_directive = f"#include \"{path}\"\n"

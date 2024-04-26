@@ -15,7 +15,7 @@ print(f"Directory containing the script: {script_dir}")
 
 # print some info about an image
 @wp.kernel
-def neon_kernel_test(idx: wpne.DenseIndex):
+def neon_kernel_test(idx: wpne.Dense_idx):
     # this is a Warp array which wraps the image data
     wp.myPrint(idx)
 
@@ -42,7 +42,7 @@ wpne.register()
 with wp.ScopedDevice("cuda:0"):
     # print image info
     print("===== Image info:")
-    idx = wpne.DenseIndex(1, 2, 33)
+    idx = wpne.Dense_idx(1, 2, 33)
     wp.launch(neon_kernel_test, dim=1, inputs=[idx])
 
 wp.synchronize()

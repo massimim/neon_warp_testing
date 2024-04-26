@@ -18,14 +18,14 @@ print(f"Directory containing the script: {script_dir}")
 
 
 @wp.func
-def user_foo(idx: wpne.DenseIndex):
+def user_foo(idx: wpne.Dense_idx):
     # this is a Warp array which wraps the image data
     wp.myPrint(idx)
 
 @wp.kernel
-def neon_kernel_test(span: wpne.dSpan):
+def neon_kernel_test(span: wpne.Dense_span):
     # this is a Warp array which wraps the image data
-    myIdx = wp.dSpan_set_and_validata(span)
+    myIdx = wp.Dense_span_set_and_validata(span)
     user_foo(myIdx)
     # user_foo(idx)
 
@@ -50,9 +50,9 @@ wpne.init()
 with wp.ScopedDevice("cuda:0"):
     # print image info
     print("===== Image info:")
-    idx = wpne.DenseIndex(1, 2, 33)
+    idx = wpne.Dense_idx(1, 2, 33)
 
-    grid = wpne.DGrid()
+    grid = wpne.Dense_grid()
     span_device_id0_standard = grid.get_span(ne.Execution.device,
                                              0,
                                              ne.Data_view.standard)

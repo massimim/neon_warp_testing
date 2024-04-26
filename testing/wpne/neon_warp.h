@@ -8,18 +8,18 @@ namespace wp
 {
 
 // import types into this namespace
-using DenseIndex = ::Neon::domain::details::dGrid::dIndex;
+using Dense_idx = ::Neon::domain::details::dGrid::dIndex;
 
 // Coord constructor exposed as a free function
-CUDA_CALLABLE inline DenseIndex DenseIndex_(int x, int y, int z)
+CUDA_CALLABLE inline Dense_idx Dense_idx_(int x, int y, int z)
 {
-    return DenseIndex(x, y, z);
+    return Dense_idx(x, y, z);
 }
 
 // overload operator+ for colors
-CUDA_CALLABLE inline void myPrint(const DenseIndex& a)
+CUDA_CALLABLE inline void myPrint(const Dense_idx& a)
 {
-    printf("DenseIndex %d %d %d\n", a.getLocation().x,  a.getLocation().y, a.getLocation().z);
+    printf("Dense_idx %d %d %d\n", a.getLocation().x,  a.getLocation().y, a.getLocation().z);
 }
 
 }

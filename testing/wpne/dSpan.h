@@ -8,11 +8,11 @@ namespace wp
 {
 
 // import types into this namespace
-using dSpan = ::Neon::domain::details::dGrid::dSpan;
+using Dense_span = ::Neon::domain::details::dGrid::dSpan;
 using dIndex = ::Neon::domain::details::dGrid::dIndex;
 
 // Coord constructor exposed as a free function
-CUDA_CALLABLE inline auto dSpan_set_and_validata(dSpan& span) ->dIndex
+CUDA_CALLABLE inline auto Dense_span_set_and_validata(Dense_span& span) ->dIndex
 {
     dIndex index;
     span.setAndValidate(index, threadIdx.x, threadIdx.y, threadIdx.z);

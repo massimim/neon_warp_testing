@@ -4,7 +4,7 @@ import warp as wp
 import py_neon as ne
 import wpne
 
-class dSpan:
+class Dense_span:
     # # define variables accessible in kernels (e.g., coord.x)
     vars = {
     }
@@ -13,7 +13,7 @@ class dSpan:
     # - used when packing arguments for kernels (pass-by-value)
     # - binary layout of fields must match native type
     class _type_(ctypes.Structure):
-        _fields_ = ne.DSpan.fields_()
+        _fields_ = ne.Dense_span.fields_()
 
         def __init__(self, span):
             self.dataView = span.dataView
@@ -22,7 +22,7 @@ class dSpan:
             self.max_z_in_domain = span.max_z_in_domain
             self.span_dim = span.span_dim
 
-    def __init__(self, s: ne.DSpan):
+    def __init__(self, s: ne.Dense_span):
         """
          s is the binding of dSpon fron Neon
         """
@@ -59,9 +59,9 @@ class dSpan:
 
 def _register_builtins():
     wp.context.add_builtin(
-        "dSpan_set_and_validata",
-        input_types={"span": dSpan},
-        value_type=wpne.DenseIndex,
+        "Dense_span_set_and_validata",
+        input_types={"span": Dense_span},
+        value_type=wpne.Dense_idx,
         missing_grad=True,
     )
 

@@ -4,7 +4,7 @@ import warp as wp
 import wpne
 
 
-class DenseIndex:
+class Dense_idx:
     # # define variables accessible in kernels (e.g., coord.x)
     vars = {
         "x": wp.codegen.Var("x", int),
@@ -43,14 +43,14 @@ def _register_builtins():
     wp.context.add_builtin(
         "DenseIndex_",
         input_types={"x": int, "y": int, "z": int},
-        value_type=wpne.DenseIndex,
+        value_type=wpne.Dense_idx,
         missing_grad=True,
     )
 
     # Color addition
     wp.context.add_builtin(
         "myPrint",
-        input_types={"a": wpne.DenseIndex},
+        input_types={"a": wpne.Dense_idx},
         value_type=None,
         missing_grad=True,
     )
