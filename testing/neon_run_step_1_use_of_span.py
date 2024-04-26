@@ -17,23 +17,16 @@ script_dir = os.path.dirname(os.path.abspath(script_path))
 print(f"Directory containing the script: {script_dir}")
 
 
-#print some info about an image
-# @wp.func
-# def neon_kernel_test(idx: wpne.DenseIndex):
-#     # this is a Warp array which wraps the image data
-#     wp.myPrint(idx)
-
-# @wp.kernel
-# def user_foo_kdfjdkfjdkf(idx: wpne.DenseIndex):
-#     #wp.myPrint(idx)
-#     pass
-
+@wp.func
+def user_foo(idx: wpne.DenseIndex):
+    # this is a Warp array which wraps the image data
+    wp.myPrint(idx)
 
 @wp.kernel
 def neon_kernel_test(span: wpne.dSpan):
     # this is a Warp array which wraps the image data
     myIdx = wp.dSpan_set_and_validata(span)
-    wp.myPrint(myIdx)
+    user_foo(myIdx)
     # user_foo(idx)
 
 
@@ -52,14 +45,14 @@ wp.build.add_preprocessor_macro_definition('NEON_WARP_COMPILATION')
 wp.build.clear_kernel_cache()
 
 # !!! DO THIS BEFORE LOADING MODULES OR LAUNCHING KERNELS
-wpne.register()
+wpne.init()
 
 with wp.ScopedDevice("cuda:0"):
     # print image info
     print("===== Image info:")
     idx = wpne.DenseIndex(1, 2, 33)
 
-    grid = ne.DGrid()
+    grid = wpne.DGrid()
     span_device_id0_standard = grid.get_span(ne.Execution.device,
                                              0,
                                              ne.Data_view.standard)

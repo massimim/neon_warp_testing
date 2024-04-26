@@ -5,6 +5,8 @@ import warp as wp
 from wpne.wpne_dense_index import DenseIndex
 from wpne.wpne_dense_span import dSpan
 
+from py_neon import *
+
 def _add_header(path):
     include_directive = f"#include \"{path}\"\n"
     # add this header for all native modules
@@ -17,8 +19,7 @@ def _register_headers():
     _add_header(f"{include_path}/neon_warp.h")
     _add_header(f"{include_path}/dSpan.h")
 
-
-def register():
+def init():
     import wpne.wpne_dense_index as dense_index
     _register_headers()
     dense_index._register_builtins()
