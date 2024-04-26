@@ -53,7 +53,7 @@ with wp.ScopedDevice("cuda:0"):
     idx = wpne.Dense_idx(1, 2, 33)
 
     grid = wpne.Dense_grid()
-    span_device_id0_standard = grid.get_span(ne.Execution.device,
+    span_device_id0_standard = grid.get_span(ne.Execution.device(),
                                              0,
                                              ne.Data_view.standard)
     print(span_device_id0_standard)
