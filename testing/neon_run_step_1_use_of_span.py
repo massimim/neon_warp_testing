@@ -52,10 +52,10 @@ with wp.ScopedDevice("cuda:0"):
     print("===== Image info:")
     idx = wpne.Dense_idx(1, 2, 33)
 
-    grid = wpne.Dense_grid()
+    grid = wpne.dense.Grid()
     span_device_id0_standard = grid.get_span(ne.Execution.device(),
                                              0,
-                                             ne.Data_view.standard)
+                                             ne.Data_view.standard())
     print(span_device_id0_standard)
 
     wp.launch(neon_kernel_test, dim=10, inputs=[span_device_id0_standard])

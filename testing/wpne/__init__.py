@@ -5,7 +5,8 @@ import warp as wp
 from wpne.wpne_dense_index import Dense_idx
 from wpne.wpne_dense_span import Dense_span
 
-from py_neon import Dense_grid, Dense_field
+import py_neon as ne
+from py_neon import dense
 
 def _add_header(path):
     include_directive = f"#include \"{path}\"\n"

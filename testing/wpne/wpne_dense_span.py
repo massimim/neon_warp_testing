@@ -13,7 +13,7 @@ class Dense_span:
     # - used when packing arguments for kernels (pass-by-value)
     # - binary layout of fields must match native type
     class _type_(ctypes.Structure):
-        _fields_ = ne.Dense_span.fields_()
+        _fields_ = ne.dense.Span.fields_()
 
         def __init__(self, span):
             self.dataView = span.dataView
@@ -22,7 +22,7 @@ class Dense_span:
             self.max_z_in_domain = span.max_z_in_domain
             self.span_dim = span.span_dim
 
-    def __init__(self, s: ne.Dense_span):
+    def __init__(self, s: ne.dense.Span):
         """
          s is the binding of dSpon fron Neon
         """
