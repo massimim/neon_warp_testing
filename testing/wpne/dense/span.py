@@ -4,7 +4,7 @@ import warp as wp
 import py_neon as ne
 import wpne
 
-class Dense_span:
+class Span:
     # # define variables accessible in kernels (e.g., coord.x)
     vars = {
     }
@@ -44,24 +44,11 @@ class Dense_span:
     def value(self):
         return self
 
-
-# def _add_header(path):
-#     include_directive = f"#include \"{path}\"\n"
-#     # add this header for all native modules
-#     wp.codegen.cpu_module_header += include_directive
-#     wp.codegen.cuda_module_header += include_directive
-#
-#
-# def _register_headers():
-#     include_path = os.path.abspath(os.path.dirname(__file__))
-#     _add_header(f"{include_path}/neon_warp.h")
-
-
 def _register_builtins():
     wp.context.add_builtin(
         "Dense_span_set_and_validata",
-        input_types={"span": Dense_span},
-        value_type=wpne.Dense_idx,
+        input_types={"span": wpne.dense.Span},
+        value_type=wpne.dense.Idx,
         missing_grad=True,
     )
 

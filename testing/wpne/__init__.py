@@ -2,11 +2,8 @@ import ctypes
 import os
 import warp as wp
 
-from wpne.wpne_dense_index import Dense_idx
-from wpne.wpne_dense_span import Dense_span
-
+import dense
 import py_neon as ne
-from py_neon import dense
 
 def _add_header(path):
     include_directive = f"#include \"{path}\"\n"
@@ -21,7 +18,7 @@ def _register_headers():
     _add_header(f"{include_path}/dSpan.h")
 
 def init():
-    import wpne.wpne_dense_index as dense_index
     _register_headers()
-    dense_index._register_builtins()
-    wpne_dense_span._register_builtins()
+    from wpne.dense.idx import register_builtins
+    register_builtins()
+    dense.span._register_builtins()
