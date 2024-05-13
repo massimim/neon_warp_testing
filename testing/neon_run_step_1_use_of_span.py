@@ -1,3 +1,6 @@
+from env_setup import update_pythonpath
+update_pythonpath()
+
 import os
 
 import warp as wp
@@ -5,12 +8,10 @@ import warp.config
 
 import wpne
 import py_neon as ne
-
 import sys
 
 # Get the path of the current script
 script_path = __file__
-
 # Get the directory containing the script
 script_dir = os.path.dirname(os.path.abspath(script_path))
 

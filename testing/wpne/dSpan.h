@@ -14,7 +14,7 @@ namespace dense{
 using dIndex = ::Neon::domain::details::dGrid::dIndex;
 
 // Coord constructor exposed as a free function
-CUDA_CALLABLE inline auto Dense_span_set_and_validata(dense.span.Span& span) ->dIndex
+CUDA_CALLABLE inline auto Dense_span_set_and_validata(dense.Span& span) ->dIndex
 {
     dIndex index;
     span.setAndValidate(index, threadIdx.x, threadIdx.y, threadIdx.z);
