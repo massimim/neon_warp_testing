@@ -1,3 +1,6 @@
+from env_setup import update_pythonpath
+update_pythonpath()
+
 import warp as wp
 import warp.config
 import wpne
@@ -14,7 +17,7 @@ print(f"Directory containing the script: {script_dir}")
 
 # print some info about an image
 @wp.kernel
-def neon_kernel_test(idx: wpne.Dense_idx):
+def neon_kernel_test(idx: wpne.NeonDenseIdx):
     # this is a Warp array which wraps the image data
     wp.myPrint(idx)
 
@@ -41,7 +44,7 @@ wpne.init()
 with wp.ScopedDevice("cuda:0"):
     # print image info
     print("===== Image info:")
-    idx = wpne.Dense_idx(1, 2, 33)
+    idx = wpne.NeonDenseIdx(1, 2, 33)
     wp.launch(neon_kernel_test, dim=1, inputs=[idx])
 
 wp.synchronize()

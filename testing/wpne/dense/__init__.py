@@ -1,2 +1,2 @@
-from .idx import Idx
-from .span import Span
+from .idx import NeonDenseIdx
+#from .span import NeonDenseSpan

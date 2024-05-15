@@ -4,7 +4,7 @@ import warp as wp
 
 
 
-class Idx:
+class NeonDenseIdx:
     # # define variables accessible in kernels (e.g., coord.x)
     vars = {
         "x": wp.codegen.Var("x", int),
@@ -37,20 +37,21 @@ class Idx:
     def value(self):
         return self
 
-def register_builtins():
-    # Coord constructor
-    wp.context.add_builtin(
-        "Idx_",
-        input_types={"x": int, "y": int, "z": int},
-        value_type=Idx,
-        missing_grad=True,
-    )
+    @staticmethod
+    def register_builtins():
+        # Coord constructor
+        wp.context.add_builtin(
+            "Idx_",
+            input_types={"x": int, "y": int, "z": int},
+            value_type=NeonDenseIdx,
+            missing_grad=True,
+        )
 
-    # Color addition
-    wp.context.add_builtin(
-        "myPrint",
-        input_types={"a": Idx},
-        value_type=None,
-        missing_grad=True,
-    )
+        # Color addition
+        wp.context.add_builtin(
+            "myPrint",
+            input_types={"a": NeonDenseIdx},
+            value_type=None,
+            missing_grad=True,
+        )
 

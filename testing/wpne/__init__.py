@@ -2,8 +2,8 @@ import ctypes
 import os
 import warp as wp
 
-import dense
-import py_neon as ne
+from .dense import NeonDenseIdx
+#from .dense import NeonDenseSpan
 
 def _add_header(path):
     include_directive = f"#include \"{path}\"\n"
@@ -12,13 +12,18 @@ def _add_header(path):
     wp.codegen.cuda_module_header += include_directive
 
 
-def _register_headers():
+def _register_dense_headers():
     include_path = os.path.abspath(os.path.dirname(__file__))
-    _add_header(f"{include_path}/neon_warp.h")
-    _add_header(f"{include_path}/dSpan.h")
+    _add_header(f"{include_path}/dense/dIdx.h")
+    _add_header(f"{include_path}/dense/dSpan.h")
+
+def _register_dense_builtins():
+    NeonDenseIdx.register_builtins()
 
 def init():
-    _register_headers()
-    from wpne.dense.idx import register_builtins
-    register_builtins()
-    dense.span._register_builtins()
+    _register_dense_headers()
+    _register_dense_builtins()
+    # dense.span._register_builtins()
+
+
+# print(f"?????? {id(ne.dense.Span)}")

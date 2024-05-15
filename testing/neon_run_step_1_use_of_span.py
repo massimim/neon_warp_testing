@@ -17,6 +17,7 @@ script_dir = os.path.dirname(os.path.abspath(script_path))
 
 print(f"Directory containing the script: {script_dir}")
 
+print(f"wpne.dense.Span ?????? {id(wpne.dense.Span)}")
 
 # @wp.func
 # def user_foo(idx: wpne.dense.Idx):
