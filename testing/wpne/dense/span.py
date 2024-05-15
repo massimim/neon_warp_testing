@@ -5,6 +5,7 @@ import py_neon as ne
 
 from .idx import NeonDenseIdx
 
+
 class NeonDenseSpan:
     # # define variables accessible in kernels (e.g., coord.x)
     vars = {
@@ -49,9 +50,7 @@ class NeonDenseSpan:
     def _register_builtins():
         wp.context.add_builtin(
             "NeonDenseSpan_set_idx",
-            input_types={"span": NeonDenseSpan},
+            input_types={"span": NeonDenseSpan, "is_valid": wp.bool},
             value_type=NeonDenseIdx,
             missing_grad=True,
         )
-
-

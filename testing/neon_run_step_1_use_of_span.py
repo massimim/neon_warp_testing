@@ -1,4 +1,7 @@
+import ctypes
+
 from env_setup import update_pythonpath
+
 update_pythonpath()
 
 import os
@@ -19,15 +22,18 @@ print(f"Directory containing the script: {script_dir}")
 
 print(f"wpne.dense.Span ?????? {id(wpne.NeonDenseSpan)}")
 
-# @wp.func
-# def user_foo(idx: wpne.dense.Idx):
-#     wp.myPrint(idx)
+
+@wp.func
+def user_foo(idx: wpne.NeonDenseIdx):
+    wp.myPrint(idx)
 
 @wp.kernel
 def neon_kernel_test(span: wpne.NeonDenseSpan):
     # this is a Warp array which wraps the image data
-    myIdx = wp.NeonDenseSpan_set_idx(span)
-    # user_foo(myIdx)
+    is_valid = wp.bool(True)
+    myIdx = wp.NeonDenseSpan_set_idx(span, is_valid)
+    if is_valid:
+        user_foo(myIdx)
     # user_foo(idx)
 
 
