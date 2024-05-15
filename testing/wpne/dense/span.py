@@ -2,9 +2,10 @@ import ctypes
 import os
 import warp as wp
 import py_neon as ne
-import wpne
 
-class Span:
+from .idx import NeonDenseIdx
+
+class NeonDenseSpan:
     # # define variables accessible in kernels (e.g., coord.x)
     vars = {
     }
@@ -44,14 +45,13 @@ class Span:
     def value(self):
         return self
 
-def _register_builtins():
-    wp.context.add_builtin(
-        "Dense_span_set_and_validata",
-        input_types={"span": wpne.dense.Span},
-        value_type=wpne.dense.Idx,
-        missing_grad=True,
-    )
+    @staticmethod
+    def _register_builtins():
+        wp.context.add_builtin(
+            "NeonDenseSpan_set_idx",
+            input_types={"span": NeonDenseSpan},
+            value_type=NeonDenseIdx,
+            missing_grad=True,
+        )
 
 
-def register():
-    _register_builtins()
