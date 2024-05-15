@@ -41,7 +41,7 @@ class NeonDenseIdx:
     def register_builtins():
         # Coord constructor
         wp.context.add_builtin(
-            "Idx_",
+            "NeonDenseIdx_",
             input_types={"x": int, "y": int, "z": int},
             value_type=NeonDenseIdx,
             missing_grad=True,

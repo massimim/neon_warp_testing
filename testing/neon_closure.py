@@ -4,7 +4,7 @@ update_pythonpath()
 import warp as wp
 
 import wpne
-from wpne.dense import Idx as DenseIndex
+from wpne import NeonDenseIdx
 
 import os
 
@@ -38,12 +38,12 @@ def create_kernel():
     # not closure
     @wp.kernel
     def kernel():
-        wp.myPrint(wp.DenseIndex_(11, 22, 33))
+        wp.myPrint(wp.NeonDenseIdx_(11, 22, 33))
     
     return kernel
 
 
-def create_kernel_closure(value: DenseIndex):
+def create_kernel_closure(value: NeonDenseIdx):
 
     # closure
     @wp.kernel
@@ -58,7 +58,7 @@ def create_fk():
     # not closure
     @wp.func
     def functional():
-        wp.myPrint(wp.DenseIndex_(11, 22, 33))
+        wp.myPrint(wp.NeonDenseIdx_(11, 22, 33))
 
     # not closure
     @wp.kernel
@@ -68,7 +68,7 @@ def create_fk():
     return functional, kernel
 
 
-def create_fk_closure(value: DenseIndex):
+def create_fk_closure(value: NeonDenseIdx):
 
     # closure
     @wp.func
@@ -88,7 +88,7 @@ class Generator:
     def __init__(self):
         self.count = 0
 
-    def create_fk(self, value: DenseIndex):
+    def create_fk(self, value: NeonDenseIdx):
 
         def functional():
             wp.myPrint(value)
@@ -120,8 +120,8 @@ with wp.ScopedDevice("cuda:0"):
 
     print("\n===== Test kernel closure =================================================================")
 
-    kernel3 = create_kernel_closure(DenseIndex(-1, -2, -3))
-    kernel4 = create_kernel_closure(DenseIndex(17, 42, 99))
+    kernel3 = create_kernel_closure(NeonDenseIdx(-1, -2, -3))
+    kernel4 = create_kernel_closure(NeonDenseIdx(17, 42, 99))
 
     wp.launch(kernel3, dim=1, inputs=[])
     wp.launch(kernel4, dim=1, inputs=[])
@@ -140,8 +140,8 @@ with wp.ScopedDevice("cuda:0"):
 
     print("\n===== Test functional + kernel closures ===================================================")
 
-    f3, k3 = create_fk_closure(DenseIndex(-1, -2, -3))
-    f4, k4 = create_fk_closure(DenseIndex(17, 42, 99))
+    f3, k3 = create_fk_closure(NeonDenseIdx(-1, -2, -3))
+    f4, k4 = create_fk_closure(NeonDenseIdx(17, 42, 99))
 
     wp.launch(k3, dim=1, inputs=[])
     wp.launch(k4, dim=1, inputs=[])
@@ -165,8 +165,8 @@ with wp.ScopedDevice("cuda:0"):
 
     generator = Generator()
 
-    f1, k1 = generator.create_fk(DenseIndex(-1, -2, -3))
-    f2, k2 = generator.create_fk(DenseIndex(17, 42, 99))
+    f1, k1 = generator.create_fk(NeonDenseIdx(-1, -2, -3))
+    f2, k2 = generator.create_fk(NeonDenseIdx(17, 42, 99))
     wp.launch(k1, dim=1, inputs=[])
     wp.launch(k2, dim=1, inputs=[])
 
