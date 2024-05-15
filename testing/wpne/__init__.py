@@ -2,8 +2,8 @@ import ctypes
 import os
 import warp as wp
 
-from .dense import NeonDenseIdx
-#from .dense import NeonDenseSpan
+from .dense.idx import NeonDenseIdx
+from .dense.span import NeonDenseSpan
 
 def _add_header(path):
     include_directive = f"#include \"{path}\"\n"
@@ -19,6 +19,7 @@ def _register_dense_headers():
 
 def _register_dense_builtins():
     NeonDenseIdx.register_builtins()
+    NeonDenseSpan._register_builtins()
 
 def init():
     _register_dense_headers()

@@ -17,16 +17,16 @@ script_dir = os.path.dirname(os.path.abspath(script_path))
 
 print(f"Directory containing the script: {script_dir}")
 
-print(f"wpne.dense.Span ?????? {id(wpne.dense.Span)}")
+print(f"wpne.dense.Span ?????? {id(wpne.NeonDenseSpan)}")
 
 # @wp.func
 # def user_foo(idx: wpne.dense.Idx):
 #     wp.myPrint(idx)
 
 @wp.kernel
-def neon_kernel_test(span: wpne.dense.Span):
+def neon_kernel_test(span: wpne.NeonDenseSpan):
     # this is a Warp array which wraps the image data
-    myIdx = wp.Dense_span_set_and_validata(span)
+    myIdx = wp.NeonDenseSpan_set_idx(span)
     # user_foo(myIdx)
     # user_foo(idx)
 
@@ -51,7 +51,7 @@ wpne.init()
 with wp.ScopedDevice("cuda:0"):
     # print image info
     print("===== Image info:")
-    idx = wpne.dense.Idx(1, 2, 33)
+    idx = wpne.NeonDenseIdx(1, 2, 33)
 
     grid = ne.dense.Grid()
     span_device_id0_standard = grid.get_span(ne.Execution.device(),

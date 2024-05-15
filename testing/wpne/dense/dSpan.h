@@ -8,7 +8,7 @@ namespace wp
 using NeonDenseSpan = ::Neon::domain::details::dGrid::dSpan;
 
 // Coord constructor exposed as a free function
-CUDA_CALLABLE inline auto Dense_span_set_and_validata(NeonDenseSpan& span)
+CUDA_CALLABLE inline auto NeonDenseSpan_set_idx(NeonDenseSpan& span)
  -> NeonDenseIdx
 {
     NeonDenseIdx index;
