@@ -18,8 +18,11 @@ def _register_dense_headers():
     _add_header(f"{include_path}/dense/dSpan.h")
 
 def _register_dense_builtins():
+    from .dense.partition import NeonDensePartitionInt
+
     NeonDenseIdx.register_builtins()
     NeonDenseSpan._register_builtins()
+    NeonDensePartitionInt._register_builtins()
 
 def init():
     _register_dense_headers()

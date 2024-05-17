@@ -18,23 +18,25 @@ script_path = __file__
 # Get the directory containing the script
 script_dir = os.path.dirname(os.path.abspath(script_path))
 
-print(f"Directory containing the script: {script_dir}")
 
-print(f"wpne.dense.Span ?????? {id(wpne.NeonDenseSpan)}")
+def conainer_kernel_generator(field):
+    partition = field.get_partition(ne.Execution.device(), 0, ne.DataView.standard())
 
+    @wp.func
+    def user_foo(idx: wpne.NeonDenseIdx):
+        value= 33
+        wp.NeonDensePartitionInt_read(partition, idx, value)
+        wp.myPrint(idx)
 
-@wp.func
-def user_foo(idx: wpne.NeonDenseIdx):
-    wp.myPrint(idx)
+    @wp.kernel
+    def neon_kernel_test(span: wpne.NeonDenseSpan):
+        # this is a Warp array which wraps the image data
+        is_valid = wp.bool(True)
+        myIdx = wp.NeonDenseSpan_set_idx(span, is_valid)
+        if is_valid:
+            user_foo(myIdx)
 
-@wp.kernel
-def neon_kernel_test(span: wpne.NeonDenseSpan):
-    # this is a Warp array which wraps the image data
-    is_valid = wp.bool(True)
-    myIdx = wp.NeonDenseSpan_set_idx(span, is_valid)
-    if is_valid:
-        user_foo(myIdx)
-    # user_foo(idx)
+    return neon_kernel_test
 
 
 wp.config.llvm_cuda = False
@@ -62,9 +64,12 @@ with wp.ScopedDevice("cuda:0"):
     grid = ne.dense.Grid()
     span_device_id0_standard = grid.get_span(ne.Execution.device(),
                                              0,
-                                             ne.Data_view.standard())
+                                             ne.DataView.standard())
     print(span_device_id0_standard)
 
-    wp.launch(neon_kernel_test, dim=10, inputs=[span_device_id0_standard])
+    field = grid.new_field()
+
+    container = conainer_kernel_generator(field)
+    wp.launch(container, dim=10, inputs=[span_device_id0_standard])
 
 wp.synchronize()
