@@ -21,6 +21,9 @@ script_dir = os.path.dirname(os.path.abspath(script_path))
 
 def conainer_kernel_generator(field):
     partition = field.get_partition(ne.Execution.device(), 0, ne.DataView.standard())
+    print(f"?????? partition {id(partition)}, {type(partition)}")
+    from wpne.dense.partition import NeonDensePartitionInt
+    print(f"?????? NeonDensePartitionInt {id(NeonDensePartitionInt)}, {type(NeonDensePartitionInt)}")
 
     @wp.func
     def user_foo(idx: wpne.NeonDenseIdx):

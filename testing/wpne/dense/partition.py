@@ -27,6 +27,7 @@ class NeonDensePartitionInt:
             ("mPitch2", ctypes.c_uint64),
             ("mPitch3", ctypes.c_uint64),
             ("mPitch4", ctypes.c_uint64),
+            ("mPrtID", ctypes.c_uint64),
             ("mOrigin", NeIndex_3d),
             ("mCardinality", ctypes.c_int),
             ("mFullGridSize", NeIndex_3d),
@@ -44,6 +45,7 @@ class NeonDensePartitionInt:
             self.mPitch2 = partition.mPitch2
             self.mPitch3 = partition.mPitch3
             self.mPitch4 = partition.mPitch4
+            self.mPrtID = partition.mPrtID
             self.mOrigin = partition.mOrigin
             self.mCardinality = partition.mCardinality
             self.mFullGridSize = partition.mFullGridSize
@@ -61,6 +63,7 @@ class NeonDensePartitionInt:
         self.mPitch2 = partition.mPitch2
         self.mPitch3 = partition.mPitch3
         self.mPitch4 = partition.mPitch4
+        self.mPrtID = partition.mPrtID
         self.mOrigin = partition.mOrigin
         self.mCardinality = partition.mCardinality
         self.mFullGridSize = partition.mFullGridSize
@@ -74,6 +77,11 @@ class NeonDensePartitionInt:
 
     @staticmethod
     def _register_builtins():
+
+        print(f"?????? NeonDenseIdx {id(NeonDenseIdx)}")
+        from wpne.dense.idx import NeonDenseIdx as wpne_dense_NeonDenseIdx
+        print(f"?????? wpne_dense_NeonDenseIdx {id(wpne_dense_NeonDenseIdx)}")
+
         wp.context.add_builtin(
             "NeonDensePartitionInt_read",
             input_types={"partition": NeonDensePartitionInt, 'idx': NeonDenseIdx, "value": ctypes.c_int},
