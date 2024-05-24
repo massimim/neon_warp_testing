@@ -23,7 +23,7 @@ def conainer_kernel_generator(field):
     partition = field.get_partition(ne.Execution.device(), 0, ne.DataView.standard())
     print(f"?????? partition {id(partition)}, {type(partition)}")
     from wpne.dense.partition import NeonDensePartitionInt
-    print(f"?????? NeonDensePartitionInt {id(NeonDensePartitionInt)}, {type(NeonDensePartitionInt)}")
+    print(f"?????? NeonDensePartitionInt {id(NeonDensePartitionInt)}, {type(NeonDensePartitionInt)}, {partition.get_my_name()}")
 
     @wp.func
     def user_foo(idx: wpne.NeonDenseIdx):

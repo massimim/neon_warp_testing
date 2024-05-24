@@ -2,6 +2,7 @@ import ctypes
 import os
 import warp as wp
 
+import wpne.dense.partition
 from .idx import NeonDenseIdx
 from py_neon.dataview import DataView as NeDataView
 from py_neon.index_3d import Index_3d as NeIndex_3d
@@ -19,15 +20,15 @@ class NeonDensePartitionInt:
     class _type_(ctypes.Structure):
         _fields_ = [
             ("mDataView", NeDataView),
-            ("mMem", ctypes.POINTER(ctypes.c_int)),
             ("mDim", NeIndex_3d),
+            ("mMem", ctypes.POINTER(ctypes.c_int)),
             ("mZHaloRadius", ctypes.c_int),
             ("mZBoundaryRadius", ctypes.c_int),
             ("mPitch1", ctypes.c_uint64),
             ("mPitch2", ctypes.c_uint64),
             ("mPitch3", ctypes.c_uint64),
             ("mPitch4", ctypes.c_uint64),
-            ("mPrtID", ctypes.c_uint64),
+            ("mPrtID", ctypes.c_int),
             ("mOrigin", NeIndex_3d),
             ("mCardinality", ctypes.c_int),
             ("mFullGridSize", NeIndex_3d),
@@ -75,6 +76,9 @@ class NeonDensePartitionInt:
     def value(self):
         return self
 
+    def get_my_name(self):
+        return "wpne.NeonDensePartitionInt"
+
     @staticmethod
     def _register_builtins():
 
@@ -84,7 +88,7 @@ class NeonDensePartitionInt:
 
         wp.context.add_builtin(
             "NeonDensePartitionInt_read",
-            input_types={"partition": NeonDensePartitionInt, 'idx': NeonDenseIdx, "value": ctypes.c_int},
+            input_types={"partition": wpne.dense.partition.NeonDensePartitionInt, 'idx': wpne.dense.idx.NeonDenseIdx, "value": ctypes.c_int},
             value_type=wp.bool,
             missing_grad=True,
         )
