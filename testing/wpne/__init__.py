@@ -16,6 +16,7 @@ def _register_dense_headers():
     include_path = os.path.abspath(os.path.dirname(__file__))
     _add_header(f"{include_path}/dense/dIdx.h")
     _add_header(f"{include_path}/dense/dSpan.h")
+    _add_header(f"{include_path}/dense/dPartition.h")
 
 def _register_dense_builtins():
     from .dense.partition import NeonDensePartitionInt
