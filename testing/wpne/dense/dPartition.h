@@ -5,7 +5,7 @@
 
  namespace wp
 {
-using NeonDensePartitionInt = ::Neon::domain::details::dGrid::Partition<int,0>;
+using NeonDensePartitionInt = ::Neon::domain::details::dGrid::dPartition<int,0>;
 
 // Coord constructor exposed as a free function
 CUDA_CALLABLE inline auto NeonDensePartition_read(
