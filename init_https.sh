@@ -1,4 +1,10 @@
-git clone https://github.com/massimim/neon_warp_testing.git -b py neon_py_bindings
+set -e
+set -x
+
+rm -fr neon_py_bindings
+
+git clone https://github.com/Autodesk/Neon.git -b py neon_py_bindings
+
 git clone https://github.com/massimim/warp -b external-source-support warp
 
 cd neon_py_bindings
