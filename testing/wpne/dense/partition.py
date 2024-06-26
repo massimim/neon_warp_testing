@@ -5,7 +5,7 @@ import warp as wp
 from .idx import NeonDenseIdx
 from py_neon.dataview import DataView as NeDataView
 from py_neon.index_3d import Index_3d as NeIndex_3d
-from py_neon.dense.partition import PartitionInt as NePartitionInt
+from py_neon.dense.dPartition import dPartitionInt as NeDPartitionInt
 
 
 class NeonDensePartitionInt:
@@ -53,7 +53,7 @@ class NeonDensePartitionInt:
             self.mStencil = partition.mStencil
 
 
-    def __init__(self, partition: NePartitionInt):
+    def __init__(self, partition: NeDPartitionInt):
         self.mDataView = partition.mDataView
         self.mMem = partition.mMem
         self.mDim = partition.mDim
