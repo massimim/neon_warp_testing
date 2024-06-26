@@ -95,7 +95,7 @@ class NeonDensePartitionInt:
 
         wp.context.add_builtin(
             "NeonDensePartitionInt_write",
-            input_types={"partition": NeonDensePartitionInt, 'idx': NeonDenseIdx, "value": ctypes.c_int},
+            input_types={"partition": NeonDensePartitionInt, 'idx': NeonDenseIdx, "value": int},
             value_type=wp.bool,
             missing_grad=True,
         )
