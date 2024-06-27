@@ -25,13 +25,11 @@ def conainer_kernel_generator(field):
 
     @wp.func
     def user_foo(idx: Index_3d):
-        value= 33
-        wp.NeonDensePartitionInt_read(partition, idx, value)
-        wp.NeonDenseIdx_print(idx)
+        value = wp.NeonDensePartitionInt_read(partition, idx, 0)
+        print(value)
 
     @wp.kernel
     def neon_kernel_test(span: Span):
-        # this is a Warp array which wraps the image data
         is_valid = wp.bool(True)
         myIdx = wp.NeonDenseSpan_set_idx(span, is_valid)
         if is_valid:
@@ -67,6 +65,6 @@ with wp.ScopedDevice("cuda:0"):
     field = grid.new_field()
 
     container = conainer_kernel_generator(field)
-    wp.launch(container, dim=10, inputs=[span_device_id0_standard])
+    wp.launch(container, dim=1, inputs=[span_device_id0_standard])
 
 wp.synchronize()

@@ -19,14 +19,14 @@ def register_builtins():
 
     wp.context.add_builtin(
         "NeonDensePartitionInt_read",
-        input_types={"partition": PartitionInt, 'idx': Index_3d, "value": int},
-        value_type=wp.bool,
+        input_types={"partition": PartitionInt, 'idx': Index_3d, "card": int},
+        value_type=int,
         missing_grad=True,
     )
 
     wp.context.add_builtin(
         "NeonDensePartitionInt_write",
-        input_types={"partition": PartitionInt, 'idx': Index_3d, "value": int},
-        value_type=wp.bool,
+        input_types={"partition": PartitionInt, 'idx': Index_3d, "card": int, "value": int},
+        value_type=None,
         missing_grad=True,
     )

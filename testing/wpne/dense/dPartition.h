@@ -78,11 +78,10 @@ CUDA_CALLABLE inline auto NeonDensePartitionInt_print(const NeonDensePartitionIn
 CUDA_CALLABLE inline auto NeonDensePartitionInt_read(
    NeonDensePartitionInt& p,
    NeonDenseIdx const & idx,
-   int card,
-   int  & value)
- -> void
+   int card)
+ -> int
 {
-   value = p(idx, card);
+   return p(idx, card);
 }
 
 CUDA_CALLABLE inline auto NeonDensePartitionInt_write(
