@@ -127,69 +127,69 @@ def create_closure_all_types(idx: Index_3d, data_view: DataView, span: Span, par
 
 
 with wp.ScopedDevice("cuda:0"):
-    # print("\n===== Test kernel =========================================================================")
+    print("\n===== Test kernel =========================================================================")
 
-    # kernel1 = create_kernel()
-    # kernel2 = create_kernel()
+    kernel1 = create_kernel()
+    kernel2 = create_kernel()
 
-    # wp.launch(kernel1, dim=1, inputs=[])
-    # wp.launch(kernel2, dim=1, inputs=[])
+    wp.launch(kernel1, dim=1, inputs=[])
+    wp.launch(kernel2, dim=1, inputs=[])
 
-    # wp.synchronize_device()
+    wp.synchronize_device()
 
-    # print("\n===== Test kernel closure =================================================================")
+    print("\n===== Test kernel closure =================================================================")
 
-    # kernel3 = create_kernel_closure(Index_3d(-1, -2, -3))
-    # kernel4 = create_kernel_closure(Index_3d(17, 42, 99))
+    kernel3 = create_kernel_closure(Index_3d(-1, -2, -3))
+    kernel4 = create_kernel_closure(Index_3d(17, 42, 99))
 
-    # wp.launch(kernel3, dim=1, inputs=[])
-    # wp.launch(kernel4, dim=1, inputs=[])
+    wp.launch(kernel3, dim=1, inputs=[])
+    wp.launch(kernel4, dim=1, inputs=[])
 
-    # wp.synchronize_device()
+    wp.synchronize_device()
 
-    # print("\n===== Test functional + kernel ============================================================")
+    print("\n===== Test functional + kernel ============================================================")
 
-    # f1, k1 = create_fk()
-    # f2, k2 = create_fk()
+    f1, k1 = create_fk()
+    f2, k2 = create_fk()
 
-    # wp.launch(k1, dim=1, inputs=[])
-    # wp.launch(k2, dim=1, inputs=[])
+    wp.launch(k1, dim=1, inputs=[])
+    wp.launch(k2, dim=1, inputs=[])
 
-    # wp.synchronize_device()
+    wp.synchronize_device()
 
-    # print("\n===== Test functional + kernel closures ===================================================")
+    print("\n===== Test functional + kernel closures ===================================================")
 
-    # f3, k3 = create_fk_closure(Index_3d(-1, -2, -3))
-    # f4, k4 = create_fk_closure(Index_3d(17, 42, 99))
+    f3, k3 = create_fk_closure(Index_3d(-1, -2, -3))
+    f4, k4 = create_fk_closure(Index_3d(17, 42, 99))
 
-    # wp.launch(k3, dim=1, inputs=[])
-    # wp.launch(k4, dim=1, inputs=[])
+    wp.launch(k3, dim=1, inputs=[])
+    wp.launch(k4, dim=1, inputs=[])
 
-    # wp.synchronize_device()
+    wp.synchronize_device()
 
-    # print("\n===== Test aggregate kernel ===============================================================")
+    print("\n===== Test aggregate kernel ===============================================================")
 
-    # @wp.kernel
-    # def aggregate_kernel():
-    #     f1()
-    #     f2()
-    #     f3()
-    #     f4()
+    @wp.kernel
+    def aggregate_kernel():
+        f1()
+        f2()
+        f3()
+        f4()
 
-    # wp.launch(aggregate_kernel, dim=1, inputs=[])
+    wp.launch(aggregate_kernel, dim=1, inputs=[])
 
-    # wp.synchronize_device()
+    wp.synchronize_device()
 
-    # print("\n===== Test manual generator ===============================================================")
+    print("\n===== Test manual generator ===============================================================")
 
-    # generator = Generator()
+    generator = Generator()
 
-    # f1, k1 = generator.create_fk(Index_3d(-1, -2, -3))
-    # f2, k2 = generator.create_fk(Index_3d(17, 42, 99))
-    # wp.launch(k1, dim=1, inputs=[])
-    # wp.launch(k2, dim=1, inputs=[])
+    f1, k1 = generator.create_fk(Index_3d(-1, -2, -3))
+    f2, k2 = generator.create_fk(Index_3d(17, 42, 99))
+    wp.launch(k1, dim=1, inputs=[])
+    wp.launch(k2, dim=1, inputs=[])
 
-    # wp.synchronize_device()
+    wp.synchronize_device()
 
     print("\n===== Test all types ===============================================================")
 
