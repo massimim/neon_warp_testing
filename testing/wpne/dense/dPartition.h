@@ -67,7 +67,7 @@ CUDA_CALLABLE inline auto NeonDensePartitionInt_print(const NeonDensePartitionIn
    const Neon::index_3d& halo = p.halo();
    const Neon::index_3d& origin = p.origin();
 
-   printf("NeonDensePartitionInt(dim={%d, %d, %d}, halo={%d, %d, %d}), origin={%d, %d, %d}, mem=%p)\n",
+   printf("NeonDensePartitionInt(dim={%d, %d, %d}, halo={%d, %d, %d}, origin={%d, %d, %d}, mem=%p)\n",
       dim.x, dim.y, dim.z,
       halo.x, halo.y, halo.z,
       origin.x, origin.y, origin.z,
