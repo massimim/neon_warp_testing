@@ -18,6 +18,7 @@ script_path = __file__
 script_dir = os.path.dirname(os.path.abspath(script_path))
 
 
+wp.config.mode = "debug"
 wp.config.llvm_cuda = False
 wp.config.verbose = True
 wp.verbose_warnings = True

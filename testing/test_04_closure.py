@@ -21,6 +21,7 @@ script_dir = os.path.dirname(os.path.abspath(script_path))
 print(f"Directory containing the script: {script_dir}")
 
 
+wp.config.mode = "debug"
 wp.config.llvm_cuda = False
 wp.config.verbose = True
 wp.verbose_warnings = True

@@ -38,6 +38,7 @@ def conainer_kernel_generator(field):
     return neon_kernel_test
 
 
+wp.config.mode = "debug"
 wp.config.llvm_cuda = False
 wp.config.verbose = True
 wp.verbose_warnings = True
