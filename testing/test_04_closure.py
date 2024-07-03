@@ -219,3 +219,6 @@ def test_04_closure():
 
         wp.launch(k, dim=1)
         wp.synchronize_device()
+
+
+test_04_closure()

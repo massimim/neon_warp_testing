@@ -72,3 +72,6 @@ def test_03_field_int():
         wp.launch(container, dim=1, inputs=[span_device_id0_standard])
 
     wp.synchronize()
+
+
+test_03_field_int()

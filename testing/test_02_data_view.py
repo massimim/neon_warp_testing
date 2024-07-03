@@ -55,3 +55,6 @@ def test_02_data_view():
         wp.synchronize_device()
 
     print("Done.")
+
+
+test_02_data_view()
