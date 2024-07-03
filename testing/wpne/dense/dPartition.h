@@ -81,6 +81,7 @@ CUDA_CALLABLE inline auto NeonDensePartitionInt_read(
    int card)
  -> int
 {
+   printf("%p\n",p.mem());
    return p(idx, card);
 }
 

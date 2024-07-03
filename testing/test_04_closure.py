@@ -12,208 +12,210 @@ from py_neon.dense.partition import PartitionInt
 
 import os
 
-# Get the path of the current script
-script_path = __file__
+def test_04_closure():
 
-# Get the directory containing the script
-script_dir = os.path.dirname(os.path.abspath(script_path))
+    # Get the path of the current script
+    script_path = __file__
 
-print(f"Directory containing the script: {script_dir}")
+    # Get the directory containing the script
+    script_dir = os.path.dirname(os.path.abspath(script_path))
 
-
-wp.config.mode = "debug"
-wp.config.llvm_cuda = False
-wp.config.verbose = True
-wp.verbose_warnings = True
-
-wp.init()
-
-wp.build.set_cpp_standard("c++17")
-wp.build.add_include_directory(script_dir)
-wp.build.add_preprocessor_macro_definition('NEON_WARP_COMPILATION')
-
-# It's a good idea to always clear the kernel cache when developing new native or codegen features
-wp.build.clear_kernel_cache()
-
-# !!! DO THIS BEFORE DEFINING/USING ANY KERNELS WITH CUSTOM TYPES
-wpne.init()
+    print(f"Directory containing the script: {script_dir}")
 
 
-def create_kernel():
+    wp.config.mode = "debug"
+    wp.config.llvm_cuda = False
+    wp.config.verbose = True
+    wp.verbose_warnings = True
 
-    # not closure
-    @wp.kernel
-    def kernel():
-        wp.NeonDenseIdx_print(wp.NeonDenseIdx_create(11, 22, 33))
-    
-    return kernel
+    wp.init()
 
+    wp.build.set_cpp_standard("c++17")
+    wp.build.add_include_directory(script_dir)
+    wp.build.add_preprocessor_macro_definition('NEON_WARP_COMPILATION')
 
-def create_kernel_closure(value: Index_3d):
+    # It's a good idea to always clear the kernel cache when developing new native or codegen features
+    wp.build.clear_kernel_cache()
 
-    # closure
-    @wp.kernel
-    def kernel():
-        wp.NeonDenseIdx_print(value)
-    
-    return kernel
+    # !!! DO THIS BEFORE DEFINING/USING ANY KERNELS WITH CUSTOM TYPES
+    wpne.init()
 
 
-def create_fk():
+    def create_kernel():
 
-    # not closure
-    @wp.func
-    def functional():
-        wp.NeonDenseIdx_print(wp.NeonDenseIdx_create(11, 22, 33))
+        # not closure
+        @wp.kernel
+        def kernel():
+            wp.NeonDenseIdx_print(wp.NeonDenseIdx_create(11, 22, 33))
 
-    # not closure
-    @wp.kernel
-    def kernel():
-        functional()
-
-    return functional, kernel
+        return kernel
 
 
-def create_fk_closure(value: Index_3d):
+    def create_kernel_closure(value: Index_3d):
 
-    # closure
-    @wp.func
-    def functional():
-        wp.NeonDenseIdx_print(value)
-
-    # closure
-    @wp.kernel
-    def kernel():
-        functional()
-
-    return functional, kernel
-
-
-# manually generate unique functions and kernels
-class Generator:
-    def __init__(self):
-        self.count = 0
-
-    def create_fk(self, value: Index_3d):
-
-        def functional():
+        # closure
+        @wp.kernel
+        def kernel():
             wp.NeonDenseIdx_print(value)
 
-        f_key = f"{wp.codegen.make_full_qualified_name(functional)}_{self.count}"
-        functional = wp.Function(functional, f_key, "")
+        return kernel
 
+
+    def create_fk():
+
+        # not closure
+        @wp.func
+        def functional():
+            wp.NeonDenseIdx_print(wp.NeonDenseIdx_create(11, 22, 33))
+
+        # not closure
+        @wp.kernel
         def kernel():
             functional()
-
-        k_key = f"{wp.codegen.make_full_qualified_name(kernel)}_{self.count}"
-        kernel = wp.Kernel(kernel, key=k_key)
-
-        self.count += 1
 
         return functional, kernel
 
 
-# test whether capturing Python custom types is working
-def create_closure_all_types(idx: Index_3d, data_view: DataView, span: Span, partition: PartitionInt):
+    def create_fk_closure(value: Index_3d):
 
-    # closure captures variables by value
-    @wp.kernel
-    def kernel():
-        wp.NeonDenseIdx_print(idx)
-        wp.NeonDataView_print(data_view)
-        wp.NeonDenseSpan_print(span)
-        wp.NeonDensePartitionInt_print(partition)
+        # closure
+        @wp.func
+        def functional():
+            wp.NeonDenseIdx_print(value)
 
-    return kernel
+        # closure
+        @wp.kernel
+        def kernel():
+            functional()
+
+        return functional, kernel
 
 
-with wp.ScopedDevice("cuda:0"):
-    print("\n===== Test kernel =========================================================================")
+    # manually generate unique functions and kernels
+    class Generator:
+        def __init__(self):
+            self.count = 0
 
-    kernel1 = create_kernel()
-    kernel2 = create_kernel()
+        def create_fk(self, value: Index_3d):
 
-    wp.launch(kernel1, dim=1, inputs=[])
-    wp.launch(kernel2, dim=1, inputs=[])
+            def functional():
+                wp.NeonDenseIdx_print(value)
 
-    wp.synchronize_device()
+            f_key = f"{wp.codegen.make_full_qualified_name(functional)}_{self.count}"
+            functional = wp.Function(functional, f_key, "")
 
-    print("\n===== Test kernel closure =================================================================")
+            def kernel():
+                functional()
 
-    kernel3 = create_kernel_closure(Index_3d(-1, -2, -3))
-    kernel4 = create_kernel_closure(Index_3d(17, 42, 99))
+            k_key = f"{wp.codegen.make_full_qualified_name(kernel)}_{self.count}"
+            kernel = wp.Kernel(kernel, key=k_key)
 
-    wp.launch(kernel3, dim=1, inputs=[])
-    wp.launch(kernel4, dim=1, inputs=[])
+            self.count += 1
 
-    wp.synchronize_device()
+            return functional, kernel
 
-    print("\n===== Test functional + kernel ============================================================")
 
-    f1, k1 = create_fk()
-    f2, k2 = create_fk()
+    # test whether capturing Python custom types is working
+    def create_closure_all_types(idx: Index_3d, data_view: DataView, span: Span, partition: PartitionInt):
 
-    wp.launch(k1, dim=1, inputs=[])
-    wp.launch(k2, dim=1, inputs=[])
+        # closure captures variables by value
+        @wp.kernel
+        def kernel():
+            wp.NeonDenseIdx_print(idx)
+            wp.NeonDataView_print(data_view)
+            wp.NeonDenseSpan_print(span)
+            wp.NeonDensePartitionInt_print(partition)
 
-    wp.synchronize_device()
+        return kernel
 
-    print("\n===== Test functional + kernel closures ===================================================")
 
-    f3, k3 = create_fk_closure(Index_3d(-1, -2, -3))
-    f4, k4 = create_fk_closure(Index_3d(17, 42, 99))
+    with wp.ScopedDevice("cuda:0"):
+        print("\n===== Test kernel =========================================================================")
 
-    wp.launch(k3, dim=1, inputs=[])
-    wp.launch(k4, dim=1, inputs=[])
+        kernel1 = create_kernel()
+        kernel2 = create_kernel()
 
-    wp.synchronize_device()
+        wp.launch(kernel1, dim=1, inputs=[])
+        wp.launch(kernel2, dim=1, inputs=[])
 
-    print("\n===== Test aggregate kernel ===============================================================")
+        wp.synchronize_device()
 
-    @wp.kernel
-    def aggregate_kernel():
-        f1()
-        f2()
-        f3()
-        f4()
+        print("\n===== Test kernel closure =================================================================")
 
-    wp.launch(aggregate_kernel, dim=1, inputs=[])
+        kernel3 = create_kernel_closure(Index_3d(-1, -2, -3))
+        kernel4 = create_kernel_closure(Index_3d(17, 42, 99))
 
-    wp.synchronize_device()
+        wp.launch(kernel3, dim=1, inputs=[])
+        wp.launch(kernel4, dim=1, inputs=[])
 
-    print("\n===== Test manual generator ===============================================================")
+        wp.synchronize_device()
 
-    generator = Generator()
+        print("\n===== Test functional + kernel ============================================================")
 
-    f1, k1 = generator.create_fk(Index_3d(-1, -2, -3))
-    f2, k2 = generator.create_fk(Index_3d(17, 42, 99))
-    wp.launch(k1, dim=1, inputs=[])
-    wp.launch(k2, dim=1, inputs=[])
+        f1, k1 = create_fk()
+        f2, k2 = create_fk()
 
-    wp.synchronize_device()
+        wp.launch(k1, dim=1, inputs=[])
+        wp.launch(k2, dim=1, inputs=[])
 
-    print("\n===== Test all types ===============================================================")
+        wp.synchronize_device()
 
-    idx = Index_3d(3, 2, 1)
-    data_view = DataView(DataView.Values.boundary)
+        print("\n===== Test functional + kernel closures ===================================================")
 
-    span = Span()
-    span.dataView = DataView(DataView.Values.internal)
-    span.z_ghost_radius = 17
-    span.z_boundary_radius = 42
-    span.max_z_in_domain = 99
-    span.span_dim = Index_3d(2, 4, 6)
+        f3, k3 = create_fk_closure(Index_3d(-1, -2, -3))
+        f4, k4 = create_fk_closure(Index_3d(17, 42, 99))
 
-    grid = py_neon.dense.Grid()
-    span_device_id0_standard = grid.get_span(py_neon.Execution.device(),
-                                             0,
-                                             py_neon.DataView.standard())
-    # print(span_device_id0_standard)
+        wp.launch(k3, dim=1, inputs=[])
+        wp.launch(k4, dim=1, inputs=[])
 
-    field = grid.new_field()
-    partition = field.get_partition(py_neon.Execution.device(), 0, py_neon.DataView.standard())
+        wp.synchronize_device()
 
-    k = create_closure_all_types(idx, data_view, span, partition)
+        print("\n===== Test aggregate kernel ===============================================================")
 
-    wp.launch(k, dim=1)
-    wp.synchronize_device()
+        @wp.kernel
+        def aggregate_kernel():
+            f1()
+            f2()
+            f3()
+            f4()
+
+        wp.launch(aggregate_kernel, dim=1, inputs=[])
+
+        wp.synchronize_device()
+
+        print("\n===== Test manual generator ===============================================================")
+
+        generator = Generator()
+
+        f1, k1 = generator.create_fk(Index_3d(-1, -2, -3))
+        f2, k2 = generator.create_fk(Index_3d(17, 42, 99))
+        wp.launch(k1, dim=1, inputs=[])
+        wp.launch(k2, dim=1, inputs=[])
+
+        wp.synchronize_device()
+
+        print("\n===== Test all types ===============================================================")
+
+        idx = Index_3d(3, 2, 1)
+        data_view = DataView(DataView.Values.boundary)
+
+        span = Span()
+        span.dataView = DataView(DataView.Values.internal)
+        span.z_ghost_radius = 17
+        span.z_boundary_radius = 42
+        span.max_z_in_domain = 99
+        span.span_dim = Index_3d(2, 4, 6)
+
+        grid = py_neon.dense.Grid()
+        span_device_id0_standard = grid.get_span(py_neon.Execution.device(),
+                                                 0,
+                                                 py_neon.DataView.standard())
+        # print(span_device_id0_standard)
+
+        field = grid.new_field()
+        partition = field.get_partition(py_neon.Execution.device(), 0, py_neon.DataView.standard())
+
+        k = create_closure_all_types(idx, data_view, span, partition)
+
+        wp.launch(k, dim=1)
+        wp.synchronize_device()
