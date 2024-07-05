@@ -8,10 +8,10 @@ import warp as wp
 import wpne
 import py_neon as ne
 from py_neon import Index_3d
-from py_neon.dense import Span
-from py_neon.dense.partition import PartitionInt
+from py_neon.dense import dSpan
+from py_neon.dense.dPartition import dPartitionInt
 
-def test_03_field_int():
+def _field_int():
 
     # Get the path of the current script
     script_path = __file__
@@ -57,10 +57,13 @@ def test_03_field_int():
 
     # !!! DO THIS BEFORE DEFINING/USING ANY KERNELS WITH CUSTOM TYPES
     wpne.init()
+    dev_idx = 0
+    with wp.ScopedDevice(f"cuda:{dev_idx}"):
 
-    with wp.ScopedDevice("cuda:0"):
+        bk = ne.Backend(runtime=ne.Backend.Runtime.stream,
+                        dev_idx_list=[dev_idx])
 
-        grid = ne.dense.Grid()
+        grid = ne.dense.dGrid(bk, Index_3d(10, 10, 10))
         span_device_id0_standard = grid.get_span(ne.Execution.device(),
                                                  0,
                                                  ne.DataView.standard())
@@ -72,3 +75,6 @@ def test_03_field_int():
         wp.launch(container, dim=1, inputs=[span_device_id0_standard])
 
     wp.synchronize()
+
+if __name__ == "__main__":
+    _field_int()

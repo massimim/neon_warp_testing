@@ -9,7 +9,7 @@ import wpne
 
 import py_neon as ne
 from py_neon import Index_3d
-from py_neon.dense import Span
+from py_neon.dense import dSpan
 
 
 # Get the path of the current script
@@ -42,7 +42,7 @@ def user_foo(idx: Index_3d):
 
 
 @wp.kernel
-def neon_kernel_test(span: Span):
+def neon_kernel_test(span: dSpan):
     # this is a Warp array which wraps the image data
     is_valid = wp.bool(True)
     myIdx = wp.NeonDenseSpan_set_idx(span, is_valid)
@@ -52,7 +52,7 @@ def neon_kernel_test(span: Span):
 
 with wp.ScopedDevice("cuda:0"):
 
-    grid = ne.dense.Grid()
+    grid = ne.dense.dGrid()
     span_device_id0_standard = grid.get_span(ne.Execution.device(),
                                              0,
                                              ne.DataView.standard())
