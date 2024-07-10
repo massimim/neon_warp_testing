@@ -27,8 +27,8 @@ def _field_int():
 
         @wp.func
         def user_foo(idx: Index_3d):
-            wp.NeonDenseIdx_print(idx)
-            value = wp.NeonDensePartitionInt_read(partition, idx, 0)
+            wp.neon_print(idx)
+            value = wp.neon_read(partition, idx, 0)
             print(33)
 
         @wp.kernel

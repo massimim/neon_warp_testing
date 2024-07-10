@@ -38,7 +38,7 @@ wpne.init()
 
 @wp.func
 def user_foo(idx: Index_3d):
-    wp.NeonDenseIdx_print(idx)
+    wp.neon_print(idx)
 
 
 @wp.kernel

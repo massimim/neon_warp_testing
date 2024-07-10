@@ -11,14 +11,14 @@ def register_builtins():
 
     # print
     wp.context.add_builtin(
-        "NeonDensePartitionInt_print",
+        "neon_print",
         input_types={"p": dPartitionInt},
         value_type=None,
         missing_grad=True,
     )
 
     wp.context.add_builtin(
-        "NeonDensePartitionInt_read",
+        "neon_read",
         input_types={"partition": dPartitionInt, 'idx': Index_3d, "card": int},
         value_type=int,
         missing_grad=True,

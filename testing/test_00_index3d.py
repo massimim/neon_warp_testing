@@ -37,13 +37,13 @@ def test_00_index3d():
 
     @wp.kernel
     def index_print_kernel(idx: Index_3d):
-        wp.NeonDenseIdx_print(idx)
+        wp.neon_print(idx)
 
 
     @wp.kernel
     def index_create_kernel():
         idx = wp.NeonDenseIdx_create(17, 42, 99)
-        wp.NeonDenseIdx_print(idx)
+        wp.neon_print(idx)
 
 
     with wp.ScopedDevice("cuda:0"):

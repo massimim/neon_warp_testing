@@ -55,11 +55,12 @@ CUDA_CALLABLE inline auto NeonDenseSpan_set_idx(NeonDenseSpan& span, bool& is_va
     return index;
 }
 
-CUDA_CALLABLE inline auto NeonDenseSpan_set_idx(NeonDenseSpan& span, int x, int y, int z)
+CUDA_CALLABLE inline auto neon_set(NeonDenseSpan& span, int x, int y, int z)
  -> NeonDenseIdx
 {
     NeonDenseIdx index;
-    span.setAndValidate(index, threadIdx.x, threadIdx.y, threadIdx.z);
+    printf("NeonDenseSpan_set_idx: %d %d %d\n" ,x , y , z );
+    span.setAndValidate_warp(index, x,y,z);
     return index;
 }
 

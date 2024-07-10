@@ -46,7 +46,7 @@ def test_04_closure():
         # not closure
         @wp.kernel
         def kernel():
-            wp.NeonDenseIdx_print(wp.NeonDenseIdx_create(11, 22, 33))
+            wp.neon_print(wp.NeonDenseIdx_create(11, 22, 33))
 
         return kernel
 
@@ -56,7 +56,7 @@ def test_04_closure():
         # closure
         @wp.kernel
         def kernel():
-            wp.NeonDenseIdx_print(value)
+            wp.neon_print(value)
 
         return kernel
 
@@ -66,7 +66,7 @@ def test_04_closure():
         # not closure
         @wp.func
         def functional():
-            wp.NeonDenseIdx_print(wp.NeonDenseIdx_create(11, 22, 33))
+            wp.neon_print(wp.NeonDenseIdx_create(11, 22, 33))
 
         # not closure
         @wp.kernel
@@ -81,7 +81,7 @@ def test_04_closure():
         # closure
         @wp.func
         def functional():
-            wp.NeonDenseIdx_print(value)
+            wp.neon_print(value)
 
         # closure
         @wp.kernel
@@ -99,7 +99,7 @@ def test_04_closure():
         def create_fk(self, value: Index_3d):
 
             def functional():
-                wp.NeonDenseIdx_print(value)
+                wp.neon_print(value)
 
             f_key = f"{wp.codegen.make_full_qualified_name(functional)}_{self.count}"
             functional = wp.Function(functional, f_key, "")
@@ -121,10 +121,10 @@ def test_04_closure():
         # closure captures variables by value
         @wp.kernel
         def kernel():
-            wp.NeonDenseIdx_print(idx)
+            wp.neon_print(idx)
             wp.NeonDataView_print(data_view)
             wp.NeonDenseSpan_print(span)
-            wp.NeonDensePartitionInt_print(partition)
+            wp.neon_print(partition)
 
         return kernel
 
