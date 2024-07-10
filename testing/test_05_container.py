@@ -5,24 +5,30 @@ update_pythonpath()
 import os
 
 import warp as wp
-
+from enum import Enum
 import wpne
 import py_neon as ne
 from py_neon import Index_3d
 from py_neon.dense import dSpan
+import typing
 
 
 class Loader:
-    def __init__(self, gpu_id):
-        self.gpu_id = gpu_id
-        self.execution = None
-        self.data_view = None
+    class ParsingTarget(Enum):
+        grid = 0
+        partitions = 1
+        data_dependencies = 2
 
-    def _set_execution(self, execution: ne.Execution):
+    def __init__(self,
+                 execution: ne.Execution,
+                 gpu_id: int,
+                 data_view: ne.DataView):
         self.execution = execution
-
-    def _set_data_view(self, data_view: ne.DataView):
+        self.gpu_id = gpu_id
         self.data_view = data_view
+
+        self.kernel = None
+        self.data_set = None
 
     def get_read_handel(self, data_set):
         partition = data_set.get_partition(
@@ -31,32 +37,82 @@ class Loader:
             self.data_view)
         return partition
 
+    def declare_execution_scope(self, grid):
+        self.data_set = grid
+
+    def _retrieve_grid(self):
+        return self.data_set
+
+    def declare_kernel(self, kernel):
+        self.kernel = kernel
+
+    def _retrieve_compute_lambda(self):
+        return self.kernel
+
 
 class Container:
-    def __init__(self,
-                 data_set=None,
-                 loading_lambda=None):
-        self.data_set = data_set
-        self.loading_lambda = loading_lambda
+    def __init__(self, loading_lambda=None):
+        # creating a dummy loader to retrieve the grid for the thread scope
+        loader: Loader = Loader(ne.Execution.host(),
+                                0,
+                                ne.DataView.standard())
+        if loading_lambda is not None:
+            self.loading_lambda = loading_lambda
+            self.loading_lambda(loader)
+            self.data_set = loader._retrieve_grid()
+            return
 
-    def _get_kernel(self, gpu_idx: int, dataview):
-        span = self.data_set.get_span(gpu_idx, dataview)
-        loader = Loader(gpu_idx)
+        self.loading_lambda = None
+        self.data_set = None
+
+    def _get_kernel(self,
+                    execution: ne.Execution,
+                    gpu_id: int,
+                    data_view: ne.DataView):
+        span = self.data_set.get_span(execution=execution,
+                                      dev_idx=gpu_id,
+                                      data_view=data_view)
+        loader: Loader = Loader(ne.Execution.host(),
+                                0,
+                                ne.DataView.standard())
+
         self.loading_lambda(loader)
-        compute_lambda = loader.get_compute_lambda(loader)
+        compute_lambda = loader._retrieve_compute_lambda()
 
         @wp.kernel
         def kernel():
+             = wp.tid()
+            wp.printf("From WP: x,y,z %d %d %d\n", x, y, z)
             is_valid = wp.bool(True)
-            myIdx = wp.NeonDenseSpan_set_idx(span, is_valid)
+            myIdx = wp.NeonDenseSpan_set_idx(span, x, y, z, is_valid)
+            print("kernel - myIdx: ")
+            wp.NeonDenseIdx_print(myIdx)
+
             if is_valid:
                 compute_lambda(myIdx)
 
         return kernel
 
-    def run(self, stream_idx: int, dataview: ne.DataView = ne.DataView.standard()):
-        kernel = self._get_kernel(stream_idx, dataview)
-        wp.launch(kernel, dim=1, inputs=[stream_idx])
+    def run(self,
+            execution: ne.Execution,
+            stream_idx: int,
+            dataview: ne.DataView = ne.DataView.standard()):
+
+        bk = self.data_set.get_backend()
+        n_devices = bk.get_num_devices()
+        wp_device_name: str = bk.get_warp_device_name()
+
+        for dev_idx in range(n_devices):
+            wp_device = f"{wp_device_name}:{dev_idx}"
+            span = self.data_set.get_span(execution=execution,
+                                          dev_idx=dev_idx,
+                                          data_view=dataview)
+            thread_space = span.get_thread_space()
+            kernel = self._get_kernel(execution, dev_idx, dataview)
+            wp_kernel_dim = thread_space.to_wp_kernel_dim()
+            wp.launch(kernel, dim=(2, 1, 3), device=wp_device)
+            # TODO@Max - WARNING - the following synchronization is temporary
+            wp.synchronize_device(wp_device)
 
     # def _set_data(self, data_set):
     #     self.data_set = data_set
@@ -65,60 +121,39 @@ class Container:
     #     self.loading_lambda = loading_lambda
 
 
-def _field_int():
+def container_decorator(loading_lambda_generator):
+    print(":container_decorator")
+
+    def container_generator(*args, **kwargs):
+        loading_lambda = loading_lambda_generator(*args, **kwargs)
+        container = Container(loading_lambda=loading_lambda)
+        return container
+
+    return container_generator
+
+
+@container_decorator
+def declaring_my_contaier(field):
+    def loading(loader: Loader):
+        loader.declare_execution_scope(field.get_grid())
+        f_read = loader.get_read_handel(field)
+
+        @wp.func
+        def foo(idx: typing.Any):
+            wp.NeonDenseIdx_print(idx)
+            # value = wp.NeonDensePartitionInt_read(f_read, idx, 0)
+            print(int(33))
+
+        loader.declare_kernel(foo)
+
+    return loading
+
+
+def _container_int():
     # Get the path of the current script
     script_path = __file__
     # Get the directory containing the script
     script_dir = os.path.dirname(os.path.abspath(script_path))
-
-    def conainer_kernel_generator(field):
-        partition = field.get_partition(ne.Execution.device(), 0, ne.DataView.standard())
-        print(f"?????? partition {id(partition)}, {type(partition)}")
-
-        # from wpne.dense.partition import NeonDensePartitionInt
-        # print(f"?????? NeonDensePartitionInt {id(NeonDensePartitionInt)}, {type(NeonDensePartitionInt)}, {partition.get_my_name()}")
-
-        @wp.func
-        def user_foo(idx: Index_3d):
-            wp.NeonDenseIdx_print(idx)
-            value = wp.NeonDensePartitionInt_read(partition, idx, 0)
-            print(33)
-
-        @wp.kernel
-        def neon_kernel_test(span: Span):
-            is_valid = wp.bool(True)
-            myIdx = wp.NeonDenseSpan_set_idx(span, is_valid)
-            if is_valid:
-                user_foo(myIdx)
-
-        return neon_kernel_test
-
-    def container_decorator(loading_lambda_generator):
-        def container_generator(*args, **kwargs):
-            try:
-                target_grid = kwargs['container_grid']
-            except:
-                # throw expection
-                raise 'continer_grid parameter is missing'
-            loading_lambda = loading_lambda_generator(*args, **kwargs)
-            container = Container(data_set=target_grid,
-                                  loading_lambda=loading_lambda)
-            return container
-
-    @container_decorator
-    def user_code(field, container_grid):
-        def loading(loader: Loader):
-            f_read = loader.get_read_handel(field)
-
-            @wp.func
-            def foo(idx: wp.any):
-                wp.NeonDenseIdx_print(idx)
-                value = wp.NeonDensePartitionInt_read(f_read, idx, 0)
-                print(33)
-
-            loader.set_user_kernel(foo)
-
-        return loading
 
     wp.config.mode = "debug"
     wp.config.llvm_cuda = False
@@ -136,24 +171,17 @@ def _field_int():
 
     # !!! DO THIS BEFORE DEFINING/USING ANY KERNELS WITH CUSTOM TYPES
     wpne.init()
-    dev_idx = 0
-    with wp.ScopedDevice(f"cuda:{dev_idx}"):
-        bk = ne.Backend(runtime=ne.Backend.Runtime.stream,
-                        dev_idx_list=[dev_idx])
 
-        grid = ne.dense.dGrid(bk, Index_3d(10, 10, 10))
-        span_device_id0_standard = grid.get_span(ne.Execution.device(),
-                                                 0,
-                                                 ne.DataView.standard())
-        print(span_device_id0_standard)
+    bk = ne.Backend(runtime=ne.Backend.Runtime.stream,
+                    dev_idx_list=[0])
 
-        field = grid.new_field()
+    grid = ne.dense.dGrid(bk, Index_3d(1, 1, 3))
+    field = grid.new_field()
 
-        container = conainer_kernel_generator(field)
-        wp.launch(container, dim=1, inputs=[span_device_id0_standard])
-
+    my_contaier = declaring_my_contaier(field)
+    my_contaier.run(ne.Execution.device(), 0, ne.DataView.standard())
     wp.synchronize()
 
 
 if __name__ == "__main__":
-    _field_int()
+    _container_int()
