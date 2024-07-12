@@ -60,21 +60,6 @@ def test_dGrid_is_inside_domain():
                     assert grid1.isInsideDomain(ne.Index_3d(x,y,z)), "everything inside [0,9] x [0,9] x [0,9] should be inside dGrid's domain"
                 else:
                     assert not grid1.isInsideDomain(ne.Index_3d(x,y,z)), "everything outisde [0,9] x [0,9] x [0,9] should not be inside dGrid's domain"
-                    
-# def test_dGrid_dField_read():
-#     backend = ne.Backend(ne.Backend.Runtime.openmp, 1)
-#     grid = ne.dGrid(backend, ne.Index_3d(10,10,10))
-#     field = grid.new_field(10)
-#     for x in range (-1,11):
-#         for y in range (-1,11):
-#             for z in range (-1,11):
-#                 for cardinality in range (0,10):
-#                     if (x in range(0,10) and y in range (0,10) and z in range (0,10)):
-#                         assert field.read(ne.Index_3d(x,y,z), cardinality) == 0
-#                     #     assert grid1.isInsideDomain(ne.Index_3d(x,y,z)), "everything inside [0,9] x [0,9] x [0,9] should be inside dGrid's domain"
-#                     # else:
-#                     #     assert not grid1.isInsideDomain(ne.Index_3d(x,y,z)), "everything outisde [0,9] x [0,9] x [0,9] should not be inside dGrid's domain"
-
 
 def test_dGrid_dField_read_write():
     backend = ne.Backend(ne.Backend.Runtime.openmp, 1)
@@ -83,8 +68,7 @@ def test_dGrid_dField_read_write():
     for x in range (0,10):
         for y in range (0,10):
             for z in range (0,10):
-                for cardinality in range (0,10): # @TODOMATT why is it stuck in this range??? For some reason there is a double free error if we expand the range naything beyond (2,13), but it should be (0,19).
-                    # 1==1
+                for cardinality in range (0,10):
                     randomVal = random.randint(10,1000)
                     field.write(ne.Index_3d(x,y,z), cardinality, randomVal)
                     assert field.read(ne.Index_3d(x,y,z), cardinality) == randomVal
@@ -125,7 +109,8 @@ def test_dGrid_dField_update_device_and_host_data():
     assert field.read(ne.Index_3d(0,0,0), 11) == 2, "garbage data written after field.updateDeviceData(0) should not be preserved after field.updateHostData(0)"
     assert field.read(ne.Index_3d(9,9,9), 7) == 11, "garbage data written after field.updateDeviceData(0) should not be preserved after field.updateHostData(0)"
 
-
+def test_dGrid_sparsity_pattern():
+    1==1
 
 # def main():
 #     print("main begins:")
