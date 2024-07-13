@@ -1,4 +1,5 @@
 from env_setup import update_pythonpath
+
 update_pythonpath()
 
 import os
@@ -9,19 +10,18 @@ import wpne
 import py_neon as ne
 from py_neon import Index_3d
 from py_neon.dense import dSpan
-from py_neon.dense.dPartition import dPartitionInt
+
 
 def _field_int():
-
     # Get the path of the current script
     script_path = __file__
     # Get the directory containing the script
     script_dir = os.path.dirname(os.path.abspath(script_path))
 
-
     def conainer_kernel_generator(field):
         partition = field.get_partition(ne.Execution.device(), 0, ne.DataView.standard())
         print(f"?????? partition {id(partition)}, {type(partition)}")
+
         # from wpne.dense.partition import NeonDensePartitionInt
         # print(f"?????? NeonDensePartitionInt {id(NeonDensePartitionInt)}, {type(NeonDensePartitionInt)}, {partition.get_my_name()}")
 
@@ -32,14 +32,13 @@ def _field_int():
             print(33)
 
         @wp.kernel
-        def neon_kernel_test(span: Span):
+        def neon_kernel_test(span: dSpan):
             is_valid = wp.bool(True)
             myIdx = wp.NeonDenseSpan_set_idx(span, is_valid)
             if is_valid:
                 user_foo(myIdx)
 
         return neon_kernel_test
-
 
     wp.config.mode = "debug"
     wp.config.llvm_cuda = False
@@ -59,7 +58,6 @@ def _field_int():
     wpne.init()
     dev_idx = 0
     with wp.ScopedDevice(f"cuda:{dev_idx}"):
-
         bk = ne.Backend(runtime=ne.Backend.Runtime.stream,
                         dev_idx_list=[dev_idx])
 
@@ -69,12 +67,13 @@ def _field_int():
                                                  ne.DataView.standard())
         print(span_device_id0_standard)
 
-        field = grid.new_field()
+        field = grid.new_field(cardinality=1)
 
         container = conainer_kernel_generator(field)
         wp.launch(container, dim=1, inputs=[span_device_id0_standard])
 
     wp.synchronize()
+
 
 if __name__ == "__main__":
     _field_int()

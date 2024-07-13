@@ -7,7 +7,7 @@ import os
 
 from py_neon import Index_3d
 
-def test_00_index3d():
+def _00_index3d():
     # Get the path of the current script
     script_path = __file__
 
@@ -57,4 +57,4 @@ def test_00_index3d():
         wp.synchronize_device()
 
 if __name__ == "__main__":
-    test_00_index3d()
+    _00_index3d()

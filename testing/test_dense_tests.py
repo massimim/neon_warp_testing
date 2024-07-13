@@ -49,7 +49,7 @@ def test_dGrid_get_properties():
     for x in range (0,10):
         for y in range (0,10):
             for z in range (0,10):
-                assert grid.getProperties(ne.Index_3d(x,y,z)) == ne.DataView.standard(), "dGrid dataview properties for each cell should start as `standard`"
+                assert grid.get_properties(ne.Index_3d(x, y, z)) == ne.DataView.standard(), "dGrid dataview properties for each cell should start as `standard`"
 
 def test_dGrid_is_inside_domain():
     grid1 = ne.dGrid(ne.Backend(ne.Backend.Runtime.openmp, 1), ne.Index_3d(10,10,10))
@@ -57,9 +57,9 @@ def test_dGrid_is_inside_domain():
         for y in range (-4,12):
             for z in range (-4,12):
                 if (x in range(0,10) and y in range (0,10) and z in range (0,10)):
-                    assert grid1.isInsideDomain(ne.Index_3d(x,y,z)), "everything inside [0,9] x [0,9] x [0,9] should be inside dGrid's domain"
+                    assert grid1.is_inside_domain(ne.Index_3d(x, y, z)), "everything inside [0,9] x [0,9] x [0,9] should be inside dGrid's domain"
                 else:
-                    assert not grid1.isInsideDomain(ne.Index_3d(x,y,z)), "everything outisde [0,9] x [0,9] x [0,9] should not be inside dGrid's domain"
+                    assert not grid1.is_inside_domain(ne.Index_3d(x, y, z)), "everything outisde [0,9] x [0,9] x [0,9] should not be inside dGrid's domain"
                     
 # def test_dGrid_dField_read():
 #     backend = ne.Backend(ne.Backend.Runtime.openmp, 1)

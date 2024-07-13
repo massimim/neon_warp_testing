@@ -57,14 +57,14 @@ def _container_int():
 
     dim = Index_3d(1, 1, 3)
     grid = ne.dense.dGrid(bk, dim)
-    field = grid.new_field()
+    field = grid.new_field(cardinality=1)
 
-    # for z in range(0, dim.z):
-    #     for y in range(0, dim.y):
-    #         for x in range(0, dim.x):
-    #             pass
-    #             field.write(Index_3d(x, y, z), cardinality=0, newValue=x + y + z)
-    #             pass
+    for z in range(0, dim.z):
+        for y in range(0, dim.y):
+            for x in range(0, dim.x):
+                field.write(idx=Index_3d(x, y, z),
+                            cardinality=0,
+                            newValue=x + y + z)
 
     field.updateDeviceData(0)
 
