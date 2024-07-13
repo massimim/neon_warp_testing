@@ -7,7 +7,7 @@ import wpne
 import os
 
 from py_neon import Index_3d
-from py_neon.dense import Span
+from py_neon.dense import dSpan
 
 # Get the path of the current script
 script_path = __file__
@@ -38,15 +38,15 @@ wpne.init()
 
 @wp.kernel
 def index_kernel(idx: Index_3d):
-    wp.NeonDenseIdx_print(idx)
+    wp.neon_print(idx)
 
 
 @wp.kernel
-def span_kernel(span: Span):
+def span_kernel(span: dSpan):
     is_valid = wp.bool(True)
     idx = wp.NeonDenseSpan_set_idx(span, is_valid)
     if is_valid:
-        wp.NeonDenseIdx_print(idx)
+        wp.neon_print(idx)
     else:
         print("OOPS")
 
