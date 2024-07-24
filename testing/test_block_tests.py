@@ -114,6 +114,12 @@ def test_bGrid_dField_update_device_and_host_data():
     assert field.read(ne.Index_3d(0,0,0), 11) == 2, "garbage data written after field.updateDeviceData(0) should not be preserved after field.updateHostData(0)"
     assert field.read(ne.Index_3d(9,9,9), 7) == 11, "garbage data written after field.updateDeviceData(0) should not be preserved after field.updateHostData(0)"
 
+def test_bField_get_partition():
+    backend = ne.Backend(ne.Backend.Runtime.openmp, 1)
+    grid = ne.bGrid(backend, ne.Index_3d(10,10,10))
+    field = grid.new_field(10)
+    partition = field.get_partition(NeExecution(NeExecution.Values.device), 0, NeDataView(NeDataView.Values.internal))
+    
 def test_bGrid_sparsity_pattern():
     1==1
 
