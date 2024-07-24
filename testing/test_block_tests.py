@@ -3,6 +3,8 @@ from env_setup import update_pythonpath
 update_pythonpath()
 import py_neon as ne
 import random
+from py_neon.execution import Execution as NeExecution
+from py_neon.dataview import DataView as NeDataView
 
 
 def test_bGrid_allocations():
@@ -115,6 +117,12 @@ def test_bGrid_dField_update_device_and_host_data():
 def test_bGrid_sparsity_pattern():
     1==1
 
+def test_bField_get_partition():
+    backend = ne.Backend(ne.Backend.Runtime.openmp, 1)
+    grid = ne.bGrid(backend, ne.Index_3d(10,10,10))
+    field = grid.new_field(10)
+    partition = field.get_partition(NeExecution(NeExecution.Values.device), 0, NeDataView(NeDataView.Values.internal))
+    
 # # def main():
 # #     print("main begins:")
 # #     allocationCounter = ne.allocationCounter()

@@ -3,6 +3,8 @@ from env_setup import update_pythonpath
 update_pythonpath()
 import py_neon as ne
 import random
+from py_neon.execution import Execution as NeExecution
+from py_neon.dataview import DataView as NeDataView
 
 
 def test_dGrid_allocations():
@@ -108,6 +110,13 @@ def test_dGrid_dField_update_device_and_host_data():
     assert field.read(ne.Index_3d(2,9,7), 3) == 600, "garbage data written after field.updateDeviceData(0) should not be preserved after field.updateHostData(0)"
     assert field.read(ne.Index_3d(0,0,0), 11) == 2, "garbage data written after field.updateDeviceData(0) should not be preserved after field.updateHostData(0)"
     assert field.read(ne.Index_3d(9,9,9), 7) == 11, "garbage data written after field.updateDeviceData(0) should not be preserved after field.updateHostData(0)"
+
+def test_dField_get_partition():
+    backend = ne.Backend(ne.Backend.Runtime.openmp, 1)
+    grid = ne.dGrid(backend, ne.Index_3d(10,10,10))
+    field = grid.new_field(10)
+    partition = field.get_partition(NeExecution(NeExecution.Values.device), 0, NeDataView(NeDataView.Values.internal))
+
 
 def test_dGrid_sparsity_pattern():
     1==1
