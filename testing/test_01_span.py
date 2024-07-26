@@ -1,4 +1,5 @@
 from env_setup import update_pythonpath
+
 update_pythonpath()
 
 import os
@@ -11,12 +12,10 @@ import py_neon as ne
 from py_neon import Index_3d
 from py_neon.dense import dSpan
 
-
 # Get the path of the current script
 script_path = __file__
 # Get the directory containing the script
 script_dir = os.path.dirname(os.path.abspath(script_path))
-
 
 wp.config.mode = "debug"
 wp.config.llvm_cuda = False
@@ -51,8 +50,10 @@ def neon_kernel_test(span: dSpan):
 
 
 with wp.ScopedDevice("cuda:0"):
-
-    grid = ne.dense.dGrid()
+    bk = ne.Backend(runtime=ne.Backend.Runtime.stream,
+                    n_dev=1)
+    print("done")
+    grid = ne.dense.dGrid(bk)
     span_device_id0_standard = grid.get_span(ne.Execution.device(),
                                              0,
                                              ne.DataView.standard())
