@@ -1,3 +1,5 @@
+from time import sleep
+
 from env_setup import update_pythonpath
 
 update_pythonpath()
@@ -81,7 +83,7 @@ def _container_int():
         data_view=ne.DataView.standard(),
         container_runtime=wpne.Container.ContainerRuntime.neon)
     field.updateDeviceData(0)
-
+    sleep(10)
     wp.synchronize()
 
 
