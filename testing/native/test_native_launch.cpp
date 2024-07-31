@@ -171,6 +171,7 @@ extern "C" void test_span_kernel(void* kernel)
     int block_dim = 256;
     int grid_dim = (n + block_dim - 1) / block_dim;
 
+
     // let's go
     check_cu(pfn_cuLaunchKernel(
         (CUfunction)kernel,
