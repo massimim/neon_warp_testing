@@ -37,21 +37,22 @@ public:
 };
 
 // print
-CUDA_CALLABLE inline auto NeonDenseSpan_print(const NeonDenseSpan& a) -> void
+CUDA_CALLABLE inline auto neon_print(const NeonDenseSpan& a) -> void
 {
     Neon::index_3d dim = a.helpGetDim();
-    printf("NeonDenseSpan(%d, %d, %d, {%d, %d, %d})\n",
-        int(a.helpGetDataView()),
-        a.helpGetZHaloRadius(),
-        a.helpGetZBoundaryRadius(),
-        dim.x, dim.y, dim.z);
+//    printf("NeonDenseSpan(%d, %d, %d, {%d, %d, %d})\n",
+//        int(a.helpGetDataView()),
+//        a.helpGetZHaloRadius(),
+//        a.helpGetZBoundaryRadius(),
+//        dim.x, dim.y, dim.z);
 }
 
-CUDA_CALLABLE inline auto NeonDenseSpan_set_idx(NeonDenseSpan& span, bool& is_valid)
+CUDA_CALLABLE inline auto neon_set(NeonDenseSpan& span, bool& is_valid)
  -> NeonDenseIdx
 {
     NeonDenseIdx index;
-    is_valid = span.setAndValidate(index, threadIdx.x, threadIdx.y, threadIdx.z);
+    using DummyType = int;
+    is_valid = span.template setAndValidate_warp<DummyType>(index);
     return index;
 }
 
@@ -59,7 +60,6 @@ CUDA_CALLABLE inline auto neon_set(NeonDenseSpan& span, int x, int y, int z)
  -> NeonDenseIdx
 {
     NeonDenseIdx index;
-    printf("NeonDenseSpan_set_idx: %d %d %d\n" ,x , y , z );
     span.setAndValidate_warp(index, x,y,z);
     return index;
 }

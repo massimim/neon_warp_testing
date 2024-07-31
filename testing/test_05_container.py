@@ -15,14 +15,16 @@ import typing
 def get_solver_operator_container(field):
     def setup(loader: wpne.Loader):
         loader.declare_execution_scope(field.get_grid())
-        f_read = loader.get_read_handel(field)
+
+        # f_read = loader.get_read_handel(field)
 
         @wp.func
         def foo(idx: typing.Any):
+            wp.print("::::::::::::::::::::::::::::::::::::::")
             wp.neon_print(idx)
-            wp.neon_print(f_read)
-            value = wp.neon_read(f_read, idx, 0)
-            print(value)
+            # wp.neon_print(f_read)
+            # value = wp.neon_read(f_read, idx, 0)
+            # print(value)
 
         loader.declare_kernel(foo)
 
@@ -59,19 +61,25 @@ def _container_int():
     grid = ne.dense.dGrid(bk, dim)
     field = grid.new_field(cardinality=1)
 
-    for z in range(0, dim.z):
-        for y in range(0, dim.y):
-            for x in range(0, dim.x):
-                field.write(idx=Index_3d(x, y, z),
-                            cardinality=0,
-                            newValue=x + y + z)
+    # for z in range(0, dim.z):
+    #     for y in range(0, dim.y):
+    #         for x in range(0, dim.x):
+    #             field.write(idx=Index_3d(x, y, z),
+    #                         cardinality=0,
+    #                         newValue=x + y + z)
 
-    field.updateDeviceData(0)
+    # field.updateDeviceData(0)
 
     solver_operator = get_solver_operator_container(field)
-    solver_operator.run(execution=ne.Execution.device(),
-                        stream_idx=0,
-                        data_view=ne.DataView.standard())
+    solver_operator.run(
+        stream_idx=0,
+        data_view=ne.DataView.standard(),
+        container_runtime=wpne.Container.ContainerRuntime.warp)
+    print('=====================')
+    solver_operator.run(
+        stream_idx=0,
+        data_view=ne.DataView.standard(),
+        container_runtime=wpne.Container.ContainerRuntime.neon)
     field.updateDeviceData(0)
 
     wp.synchronize()

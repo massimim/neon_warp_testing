@@ -112,7 +112,7 @@ struct launch_bounds_t
 
 extern "C" void test_index_kernel(void* kernel)
 {
-    printf("==== Index let's goooo =======================================\n");
+    printf("==== Index let's goooo ======================================= %p\n", kernel);
 
     int n = 1;
 

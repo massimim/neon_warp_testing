@@ -20,14 +20,15 @@ class Container:
                  execution: py_neon.Execution = py_neon.Execution.device()):
 
         # creating a dummy loader to retrieve the grid for the thread scope
-        dummy_loader: Loader = Loader(execution,
-                                      0,
-                                      py_neon.DataView.standard())
+        self.execution = execution
+        dummy_loader: Loader = Loader(execution=execution,
+                                      gpu_id=0,
+                                      data_view=py_neon.DataView.standard())
 
         try:
             self.py_neon: Py_neon = Py_neon()
         except Exception as e:
-            self.handle: ctypes.c_uint64 = ctypes.c_uint64(0)
+            self.handle: ctypes.c_uint64 = ctypes.c_void_p
             raise Exception('Failed to initialize PyNeon: ' + str(e))
         self.help_load_api()
 
@@ -40,20 +41,34 @@ class Container:
             self.loading_lambda(dummy_loader)
             self.data_set = dummy_loader._retrieve_grid()
             self.backend = self.data_set.get_backend()
-
+            # Setting up the information of the Neon container for Neon runtime
             n_devices = self.backend.get_num_devices()  # rows
             n_data_views = 3  # columns
             # Create a NumPy array of object dtype
             k_2Darray = (ctypes.c_void_p * (n_data_views * n_devices))()
 
+            dev_idx = 0
+            dw_idx = 0
+            # for dev_idx in range(n_devices):
+            #     for dw_idx in range(n_data_views):
+            k = self._get_kernel(execution=execution,
+                                 gpu_id=dev_idx,
+                                 data_view=py_neon.DataView.from_int(dw_idx),
+                                 container_runtime=Container.ContainerRuntime.warp)
+            # using self.k for debugging
+            self.k = k
+            offset = dev_idx * n_data_views + dw_idx
+            dev_str = self.backend.get_device_name(dev_idx)
+            k_hook = Container._get_kernel_hook(k, dev_str)
+            print(f"hook {hex(k_hook)}, device {dev_idx}, data_view {dw_idx}")
+            k_2Darray[offset] = k_hook
 
-            for dev_idx in range(n_devices):
-                for dw_idx in range(n_data_views):
-                    k = self._get_kernel(execution, dev_idx, py_neon.DataView.from_int(dw_idx), self.backend)
-                    offset = dev_idx * n_data_views + dw_idx
-                    k_2Darray[offset] = ctypes.pointer(k)
-
-
+            # debug = True
+            # if debug:
+            #     print("k_2Darray")
+            #     for i in range(n_devices):
+            #         for j in range(n_data_views):
+            #             print(f"Device {i}, DataView {j} hook {hex(k_2Darray[i * n_data_views + j])}")
 
             self.container_handle = self.py_neon.handle_type(0)
             block_size = py_neon.Index_3d(0, 0, 0)
@@ -64,6 +79,23 @@ class Container:
                                                       k_2Darray,
                                                       block_size)
 
+    @staticmethod
+    def _get_kernel_hook(kernel, decvice_str):
+        """
+         decvice_str = "cuda:0"
+        :param kernel:
+        :param device_str:
+        :return:
+        """
+
+        device = wp.get_device(decvice_str)
+        module = kernel.module
+        module.load(device)
+        general_hooks = module.get_kernel_hooks(kernel, device)
+        hook = general_hooks.forward
+        print(f"Get hook from kernel {hex(hook)} device {decvice_str}")
+        return hook
+
     def help_load_api(self):
         # ------------------------------------------------------------------
         # backend_new
@@ -71,21 +103,19 @@ class Container:
                                                               py_neon.Execution,
                                                               self.py_neon.handle_type,
                                                               self.py_neon.handle_type,
-                                                              ctypes.c_void_p,
-                                                              ctypes.c_void_p,
-                                                              ctypes.c_void_p,
+                                                              ctypes.POINTER(ctypes.c_void_p),
                                                               ctypes.POINTER(py_neon.Index_3d)]
         self.py_neon.lib.warp_dgrid_container_new.restype = None
         # ------------------------------------------------------------------
         # warp_container_delete
-        self.py_neon.lib.dBackend_delete.argtypes = [self.py_neon.handle_type]
-        self.py_neon.lib.dBackend_delete.restype = None
+        self.py_neon.lib.warp_container_delete.argtypes = [self.py_neon.handle_type]
+        self.py_neon.lib.warp_container_delete.restype = None
         # ------------------------------------------------------------------
-        # warp_dgrid_container_new
-        self.py_neon.lib.warp_dgrid_container_run.argtypes = [self.py_neon.handle_type,
-                                                              ctypes.c_int,
-                                                              py_neon.DataView]
-        self.py_neon.lib.warp_dgrid_container_run.restype = None
+        # warp_dgrid_container_run
+        self.py_neon.lib.warp_container_run.argtypes = [self.py_neon.handle_type,
+                                                        ctypes.c_int,
+                                                        py_neon.DataView]
+        self.py_neon.lib.warp_container_run.restype = None
 
         # TODOMATT get num devices
         # TODOMATT get device type
@@ -94,8 +124,9 @@ class Container:
                     container_runtime: ContainerRuntime,
                     execution: py_neon.Execution,
                     gpu_id: int,
-                    data_view: py_neon.DataView,
-                    runtime):
+                    data_view: py_neon.DataView):
+        # debug
+        container_runtime = Container.ContainerRuntime.warp
         span = self.data_set.get_span(execution=execution,
                                       dev_idx=gpu_id,
                                       data_view=data_view)
@@ -110,9 +141,9 @@ class Container:
             @wp.kernel
             def kernel():
                 x, y, z = wp.tid()
-                wp.printf("kernel - tid: %d %d %d\n", x, y, z)
+                wp.printf("my kernel - tid: %d %d %d\n", x, y, z)
                 myIdx = wp.neon_set(span, x, y, z)
-                print("kernel - myIdx: ")
+                print("my kernel - myIdx: ")
                 wp.neon_print(myIdx)
                 compute_lambda(myIdx)
 
@@ -121,39 +152,77 @@ class Container:
         elif container_runtime == Container.ContainerRuntime.neon:
             @wp.kernel
             def kernel():
-                wp.printf("kernel - tid: %d %d %d\n", x, y, z)
-                myIdx = wp.neon_set(span)
-                print("kernel - myIdx: ")
-                wp.neon_print(myIdx)
-                compute_lambda(myIdx)
+                is_active = wp.bool(False)
+                myIdx = wp.neon_set(span, is_active)
+                if is_active:
+                    print("kernel - myIdx: ")
+                    wp.neon_print(myIdx)
+                    compute_lambda(myIdx)
 
             return kernel
+
+    def _run_warp(
+            self,
+            stream_idx: int,
+            data_view: py_neon.DataView):
+        """
+        Executing a container in the warp backend.
+        :param stream_idx:
+        :param data_view:
+        :return:
+        """
+        with nvtx.annotate("wpne-container", color="green"):
+            bk = self.data_set.get_backend()
+            n_devices = bk.get_num_devices()
+            wp_device_name: str = bk.get_warp_device_name()
+
+            for dev_idx in range(n_devices):
+                wp_device = f"{wp_device_name}:{dev_idx}"
+                span = self.data_set.get_span(execution=self.execution,
+                                              dev_idx=dev_idx,
+                                              data_view=data_view)
+                thread_space = span.get_thread_space()
+                kernel = self._get_kernel(
+                    container_runtime=Container.ContainerRuntime.warp,
+                    execution=self.execution,
+                    gpu_id=dev_idx,
+                    data_view=data_view)
+                kernel  = self.k
+                kernel2 = self._get_kernel(
+                    container_runtime=Container.ContainerRuntime.warp,
+                    execution=self.execution,
+                    gpu_id=dev_idx,
+                    data_view=data_view)
+                wp_kernel_dim = thread_space.to_wp_kernel_dim()
+                foo = Container._get_kernel_hook(kernel, wp_device)
+                foo2 = Container._get_kernel_hook(kernel2, wp_device)
+
+                print(f"foo seen from warp {hex(foo)}")
+                print(f"foo2 seen from warp {hex(foo2)}")
+
+                wp.launch(kernel, dim=wp_kernel_dim, device=wp_device)
+                # TODO@Max - WARNING - the following synchronization is temporary
+                wp.synchronize_device(wp_device)
+
+    def _run_neon(
+            self,
+            stream_idx: int,
+            data_view: py_neon.DataView):
+        print(f"Neon kernel call stream {stream_idx}, dw {data_view.__str__()}")
+        self.py_neon.lib.warp_container_run(self.container_handle,
+                                            stream_idx,
+                                            data_view)
 
     def run(self,
             stream_idx: int,
             data_view: py_neon.DataView = py_neon.DataView.standard(),
             container_runtime: ContainerRuntime = ContainerRuntime.warp):
         if container_runtime == Container.ContainerRuntime.warp:
-            with nvtx.annotate("wpne-container", color="green"):
-                bk = self.data_set.get_backend()
-                n_devices = bk.get_num_devices()
-                wp_device_name: str = bk.get_warp_device_name()
-
-                for dev_idx in range(n_devices):
-                    wp_device = f"{wp_device_name}:{dev_idx}"
-                    span = self.data_set.get_span(execution=self.execution,
-                                                  dev_idx=dev_idx,
-                                                  data_view=data_view)
-                    thread_space = span.get_thread_space()
-                    kernel = self._get_kernel(self.execution, dev_idx, data_view)
-                    wp_kernel_dim = thread_space.to_wp_kernel_dim()
-                    wp.launch(kernel, dim=wp_kernel_dim, device=wp_device)
-                    # TODO@Max - WARNING - the following synchronization is temporary
-                    wp.synchronize_device(wp_device)
+            self._run_warp(stream_idx=stream_idx,
+                           data_view=data_view)
         elif container_runtime == Container.ContainerRuntime.neon:
-            self.py_neon.lib.warp_dgrid_container_run(self.container_handle,
-                                                      stream_idx,
-                                                      data_view)
+            self._run_neon(stream_idx=stream_idx,
+                           data_view=data_view)
 
     # def _set_data(self, data_set):
     #     self.data_set = data_set
