@@ -51,17 +51,30 @@ def span_kernel(span: Span):
         print("OOPS")
 
 
+# This is a set of compiled executable modules loaded by Warp.
+# When getting kernel hooks, we can retain the module references here
+# to prevent them from being unloaded prematurely.
+retained_executable_modules = set()
+
 # returns the CUfunction that can be launched with cuLaunchKernel()
 def get_kernel_hook(kernel, device):
-    module = kernel.module
-    module.load(device)
-    return module.get_kernel_hooks(kernel, device).forward
+    # compile and load the executable module
+    module_exec = kernel.module.load(device)
+    if module_exec is None:
+        raise RuntimeError(f"Failed to load module for kernel {kernel.key}")
+
+    # Keep a reference to the executable module so that it doesn't get unloaded,
+    # even if the source Warp module is modified and reloaded later.
+    retained_executable_modules.add(module_exec)
+
+    # return the kernel entry point
+    return module_exec.get_kernel_hooks(kernel).forward
 
 
 device = wp.get_device("cuda:0")
 
-# build and load Warp this module
-wp.load_module("__main__", device=device)
+# build and load this Warp module
+wp.load_module(device=device)
 
 # Build and load the native lib that will launch kernels
 
@@ -95,6 +108,21 @@ if not dll.init():
 # get kernel hooks (CUfunction) and launch them from native code
 
 print("\nLaunching from C++...")
+
+print()
+k = get_kernel_hook(index_kernel, device)
+dll.test_index_kernel(k)
+
+print()
+k = get_kernel_hook(span_kernel, device)
+dll.test_span_kernel(k)
+
+# ensure that unloading/reloading the original Warp module does not invalidate existing kernel hooks
+print("\nReloading module...")
+index_kernel.module.unload()
+index_kernel.module.load(device)
+
+print("\nLaunching after reload...")
 
 print()
 k = get_kernel_hook(index_kernel, device)
