@@ -1,4 +1,5 @@
 from env_setup import update_pythonpath
+
 update_pythonpath()
 
 import os
@@ -8,38 +9,36 @@ import warp as wp
 import wpne
 import py_neon as ne
 from py_neon import Index_3d
-from py_neon.dense import Span
-from py_neon.dense.partition import PartitionInt
+from py_neon.dense import dSpan
 
-def test_03_field_int():
 
+def _field_int():
     # Get the path of the current script
     script_path = __file__
     # Get the directory containing the script
     script_dir = os.path.dirname(os.path.abspath(script_path))
 
-
     def conainer_kernel_generator(field):
         partition = field.get_partition(ne.Execution.device(), 0, ne.DataView.standard())
         print(f"?????? partition {id(partition)}, {type(partition)}")
+
         # from wpne.dense.partition import NeonDensePartitionInt
         # print(f"?????? NeonDensePartitionInt {id(NeonDensePartitionInt)}, {type(NeonDensePartitionInt)}, {partition.get_my_name()}")
 
         @wp.func
         def user_foo(idx: Index_3d):
-            wp.NeonDenseIdx_print(idx)
-            value = wp.NeonDensePartitionInt_read(partition, idx, 0)
+            wp.neon_print(idx)
+            value = wp.neon_read(partition, idx, 0)
             print(33)
 
         @wp.kernel
-        def neon_kernel_test(span: Span):
+        def neon_kernel_test(span: dSpan):
             is_valid = wp.bool(True)
             myIdx = wp.NeonDenseSpan_set_idx(span, is_valid)
             if is_valid:
                 user_foo(myIdx)
 
         return neon_kernel_test
-
 
     wp.config.mode = "debug"
     wp.config.llvm_cuda = False
@@ -57,16 +56,18 @@ def test_03_field_int():
 
     # !!! DO THIS BEFORE DEFINING/USING ANY KERNELS WITH CUSTOM TYPES
     wpne.init()
+    dev_idx = 0
+    with wp.ScopedDevice(f"cuda:{dev_idx}"):
+        bk = ne.Backend(runtime=ne.Backend.Runtime.stream,
+                        dev_idx_list=[dev_idx])
 
-    with wp.ScopedDevice("cuda:0"):
-
-        grid = ne.dense.Grid()
+        grid = ne.dense.dGrid(bk, Index_3d(10, 10, 10))
         span_device_id0_standard = grid.get_span(ne.Execution.device(),
                                                  0,
                                                  ne.DataView.standard())
         print(span_device_id0_standard)
 
-        field = grid.new_field()
+        field = grid.new_field(cardinality=1)
 
         container = conainer_kernel_generator(field)
         wp.launch(container, dim=1, inputs=[span_device_id0_standard])
@@ -74,4 +75,5 @@ def test_03_field_int():
     wp.synchronize()
 
 
-test_03_field_int()
+if __name__ == "__main__":
+    _field_int()

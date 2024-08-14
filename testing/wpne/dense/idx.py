@@ -18,7 +18,7 @@ def register_builtins():
 
     # print dense index
     wp.context.add_builtin(
-        "NeonDenseIdx_print",
+        "neon_print",
         input_types={"a": Index_3d},
         value_type=None,
         missing_grad=True,

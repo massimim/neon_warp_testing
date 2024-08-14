@@ -61,7 +61,7 @@ public:
 
 
 // print
-CUDA_CALLABLE inline auto NeonDensePartitionInt_print(const NeonDensePartitionInt& p) -> void
+CUDA_CALLABLE inline auto neon_print(const NeonDensePartitionInt& p) -> void
 {
    const Neon::index_3d& dim = p.dim();
    const Neon::index_3d& halo = p.halo();
@@ -75,7 +75,7 @@ CUDA_CALLABLE inline auto NeonDensePartitionInt_print(const NeonDensePartitionIn
    );
 }
 
-CUDA_CALLABLE inline auto NeonDensePartitionInt_read(
+CUDA_CALLABLE inline auto neon_read(
    NeonDensePartitionInt& p,
    NeonDenseIdx const & idx,
    int card)

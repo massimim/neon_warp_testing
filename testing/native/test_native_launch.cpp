@@ -8,7 +8,7 @@
 
 
 // Warp builtins
-#include <warp/native/builtin.h>
+//#include <warp/native/builtin.h>
 
 // Neon
 #include <Neon/domain/dGrid.h>
@@ -24,6 +24,7 @@ static PFN_cuGetProcAddress_v11030 pfn_cuGetProcAddress;
 #else
 static PFN_cuGetProcAddress_v12000 pfn_cuGetProcAddress;
 #endif
+
 static PFN_cuGetErrorName_v6000 pfn_cuGetErrorName;
 static PFN_cuGetErrorString_v6000 pfn_cuGetErrorString;
 static PFN_cuCtxSynchronize_v2000 pfn_cuCtxSynchronize;
@@ -101,14 +102,22 @@ extern "C" bool init()
     return true;
 }
 
+const int LAUNCH_MAX_DIMS = 4;   // should match types.py
+struct launch_bounds_t
+{
+    int shape[LAUNCH_MAX_DIMS]; // size of each dimension
+    int ndim;                   // number of valid dimension
+    size_t size;                // total number of threads
+};
+
 extern "C" void test_index_kernel(void* kernel)
 {
-    printf("==== Index let's goooo =======================================\n");
+    printf("==== Index let's goooo ======================================= %p\n", kernel);
 
     int n = 1;
 
     // Warp launch bounds
-    wp::launch_bounds_t bounds;
+    launch_bounds_t bounds;
     bounds.ndim = 1;
     bounds.shape[0] = n;
     bounds.size = n;
@@ -149,7 +158,7 @@ extern "C" void test_span_kernel(void* kernel)
     int n = 10;
 
     // Warp launch bounds
-    wp::launch_bounds_t bounds;
+    launch_bounds_t bounds;
     bounds.ndim = 1;
     bounds.shape[0] = n;
     bounds.size = n;
@@ -161,6 +170,7 @@ extern "C" void test_span_kernel(void* kernel)
 
     int block_dim = 256;
     int grid_dim = (n + block_dim - 1) / block_dim;
+
 
     // let's go
     check_cu(pfn_cuLaunchKernel(

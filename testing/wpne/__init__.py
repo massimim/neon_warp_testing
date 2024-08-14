@@ -1,6 +1,9 @@
 import os
 import warp as wp
 
+from .container import Container
+from .loader import Loader
+
 
 def _add_header(path):
     include_directive = f"#include \"{path}\"\n"
@@ -29,3 +32,4 @@ def _register_dense_builtins():
 def init():
     _register_dense_headers()
     _register_dense_builtins()
+

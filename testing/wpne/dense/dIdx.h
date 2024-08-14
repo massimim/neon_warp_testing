@@ -16,9 +16,9 @@ CUDA_CALLABLE inline auto NeonDenseIdx_create(int x, int y, int z) -> NeonDenseI
 }
 
 // print dense index
-CUDA_CALLABLE inline auto NeonDenseIdx_print(const NeonDenseIdx& a) -> void
+CUDA_CALLABLE inline auto neon_print(const NeonDenseIdx& a) -> void
 {
-    printf("NeonDenseIdx(%d, %d, %d)\n", a.getLocation().x,  a.getLocation().y, a.getLocation().z);
+    printf("neon_print - NeonDenseIdx(%d, %d, %d)\n", a.getLocation().x,  a.getLocation().y, a.getLocation().z);
 }
 
 }

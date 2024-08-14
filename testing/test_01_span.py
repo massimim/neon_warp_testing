@@ -1,4 +1,5 @@
 from env_setup import update_pythonpath
+
 update_pythonpath()
 
 import os
@@ -9,14 +10,12 @@ import wpne
 
 import py_neon as ne
 from py_neon import Index_3d
-from py_neon.dense import Span
-
+from py_neon.dense import dSpan
 
 # Get the path of the current script
 script_path = __file__
 # Get the directory containing the script
 script_dir = os.path.dirname(os.path.abspath(script_path))
-
 
 wp.config.mode = "debug"
 wp.config.llvm_cuda = False
@@ -38,11 +37,11 @@ wpne.init()
 
 @wp.func
 def user_foo(idx: Index_3d):
-    wp.NeonDenseIdx_print(idx)
+    wp.neon_print(idx)
 
 
 @wp.kernel
-def neon_kernel_test(span: Span):
+def neon_kernel_test(span: dSpan):
     # this is a Warp array which wraps the image data
     is_valid = wp.bool(True)
     myIdx = wp.NeonDenseSpan_set_idx(span, is_valid)
@@ -51,8 +50,10 @@ def neon_kernel_test(span: Span):
 
 
 with wp.ScopedDevice("cuda:0"):
-
-    grid = ne.dense.Grid()
+    bk = ne.Backend(runtime=ne.Backend.Runtime.stream,
+                    n_dev=1)
+    print("done")
+    grid = ne.dense.dGrid(bk)
     span_device_id0_standard = grid.get_span(ne.Execution.device(),
                                              0,
                                              ne.DataView.standard())

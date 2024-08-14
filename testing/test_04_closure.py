@@ -7,12 +7,12 @@ import wpne
 
 import py_neon
 from py_neon import Index_3d, DataView
-from py_neon.dense import Span
-from py_neon.dense.partition import PartitionInt
+from py_neon.dense import dSpan
+from py_neon.dense.dPartition import dPartitionInt
 
 import os
 
-def test_04_closure():
+def run_closure():
 
     # Get the path of the current script
     script_path = __file__
@@ -46,7 +46,7 @@ def test_04_closure():
         # not closure
         @wp.kernel
         def kernel():
-            wp.NeonDenseIdx_print(wp.NeonDenseIdx_create(11, 22, 33))
+            wp.neon_print(wp.NeonDenseIdx_create(11, 22, 33))
 
         return kernel
 
@@ -56,7 +56,7 @@ def test_04_closure():
         # closure
         @wp.kernel
         def kernel():
-            wp.NeonDenseIdx_print(value)
+            wp.neon_print(value)
 
         return kernel
 
@@ -66,7 +66,7 @@ def test_04_closure():
         # not closure
         @wp.func
         def functional():
-            wp.NeonDenseIdx_print(wp.NeonDenseIdx_create(11, 22, 33))
+            wp.neon_print(wp.NeonDenseIdx_create(11, 22, 33))
 
         # not closure
         @wp.kernel
@@ -81,7 +81,7 @@ def test_04_closure():
         # closure
         @wp.func
         def functional():
-            wp.NeonDenseIdx_print(value)
+            wp.neon_print(value)
 
         # closure
         @wp.kernel
@@ -99,7 +99,7 @@ def test_04_closure():
         def create_fk(self, value: Index_3d):
 
             def functional():
-                wp.NeonDenseIdx_print(value)
+                wp.neon_print(value)
 
             f_key = f"{wp.codegen.make_full_qualified_name(functional)}_{self.count}"
             functional = wp.Function(functional, f_key, "")
@@ -116,20 +116,24 @@ def test_04_closure():
 
 
     # test whether capturing Python custom types is working
-    def create_closure_all_types(idx: Index_3d, data_view: DataView, span: Span, partition: PartitionInt):
+    def create_closure_all_types(idx: Index_3d,
+                                 data_view: DataView,
+                                 span: dSpan,
+                                 partition: dPartitionInt):
 
         # closure captures variables by value
         @wp.kernel
         def kernel():
-            wp.NeonDenseIdx_print(idx)
+            wp.neon_print(idx)
             wp.NeonDataView_print(data_view)
             wp.NeonDenseSpan_print(span)
-            wp.NeonDensePartitionInt_print(partition)
+            wp.neon_print(partition)
 
         return kernel
 
 
     with wp.ScopedDevice("cuda:0"):
+        bk = py_neon.Backend(runtime=py_neon.Backend.Runtime.stream, n_dev=1)
         print("\n===== Test kernel =========================================================================")
 
         kernel1 = create_kernel()
@@ -199,20 +203,20 @@ def test_04_closure():
         idx = Index_3d(3, 2, 1)
         data_view = DataView(DataView.Values.boundary)
 
-        span = Span()
+        span = dSpan()
         span.dataView = DataView(DataView.Values.internal)
         span.z_ghost_radius = 17
         span.z_boundary_radius = 42
         span.max_z_in_domain = 99
         span.span_dim = Index_3d(2, 4, 6)
 
-        grid = py_neon.dense.Grid()
+        grid = py_neon.dense.dGrid(bk)
         span_device_id0_standard = grid.get_span(py_neon.Execution.device(),
                                                  0,
                                                  py_neon.DataView.standard())
         # print(span_device_id0_standard)
 
-        field = grid.new_field()
+        field = grid.new_field(cardinality=1)
         partition = field.get_partition(py_neon.Execution.device(), 0, py_neon.DataView.standard())
 
         k = create_closure_all_types(idx, data_view, span, partition)
@@ -221,4 +225,7 @@ def test_04_closure():
         wp.synchronize_device()
 
 
-test_04_closure()
+# run_closure()
+
+if __name__ == "__main__":
+    run_closure()
