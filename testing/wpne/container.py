@@ -15,6 +15,11 @@ class Container:
         warp = 1
         neon = 2
 
+    # This is a set of compiled executable modules loaded by Warp.
+    # When getting kernel hooks, we can retain the module references here
+    # to prevent them from being unloaded prematurely.
+    retained_executable_modules = set()
+
     def __init__(self,
                  loading_lambda=None,
                  execution: py_neon.Execution = py_neon.Execution.device()):
@@ -45,23 +50,20 @@ class Container:
             n_devices = self.backend.get_num_devices()  # rows
             n_data_views = 3  # columns
             # Create a NumPy array of object dtype
-            k_2Darray = (ctypes.c_void_p * (n_data_views * n_devices))()
+            self.k_2Darray = (ctypes.c_void_p * (n_data_views * n_devices))()
 
-            dev_idx = 0
-            dw_idx = 0
-            # for dev_idx in range(n_devices):
-            #     for dw_idx in range(n_data_views):
-            k = self._get_kernel(execution=execution,
-                                 gpu_id=dev_idx,
-                                 data_view=py_neon.DataView.from_int(dw_idx),
-                                 container_runtime=Container.ContainerRuntime.warp)
-            # using self.k for debugging
-            self.k = k
-            offset = dev_idx * n_data_views + dw_idx
-            dev_str = self.backend.get_device_name(dev_idx)
-            k_hook = Container._get_kernel_hook(k, dev_str)
-            print(f"hook {hex(k_hook)}, device {dev_idx}, data_view {dw_idx}")
-            k_2Darray[offset] = k_hook
+            for dev_idx in range(n_devices):
+                for dw_idx in range(n_data_views):
+                    k = self._get_kernel(execution=execution,
+                                         gpu_id=dev_idx,
+                                         data_view=py_neon.DataView.from_int(dw_idx),
+                                         container_runtime=Container.ContainerRuntime.warp)
+                    # using self.k for debugging
+                    offset = dev_idx * n_data_views + dw_idx
+                    dev_str = self.backend.get_device_name(dev_idx)
+                    k_hook = self._get_kernel_hook(k, dev_str)
+                    print(f"hook {hex(k_hook)}, device {dev_idx}, data_view {dw_idx}")
+                    self.k_2Darray[offset] = k_hook
 
             # debug = True
             # if debug:
@@ -71,16 +73,15 @@ class Container:
             #             print(f"Device {i}, DataView {j} hook {hex(k_2Darray[i * n_data_views + j])}")
 
             self.container_handle = self.py_neon.handle_type(0)
-            block_size = py_neon.Index_3d(0, 0, 0)
+            block_size = py_neon.Index_3d(128, 0, 0)
             self.py_neon.lib.warp_dgrid_container_new(ctypes.byref(self.container_handle),
                                                       execution,
                                                       self.backend.cuda_driver_handle,
                                                       self.data_set.get_handle(),
-                                                      k_2Darray,
+                                                      self.k_2Darray,
                                                       block_size)
 
-    @staticmethod
-    def _get_kernel_hook(kernel, decvice_str):
+    def _get_kernel_hook(self, kernel, decvice_str):
         """
          decvice_str = "cuda:0"
         :param kernel:
@@ -89,12 +90,12 @@ class Container:
         """
 
         device = wp.get_device(decvice_str)
-        module = kernel.module
-        module.load(device)
-        general_hooks = module.get_kernel_hooks(kernel, device)
-        hook = general_hooks.forward
-        print(f"Get hook from kernel {hex(hook)} device {decvice_str}")
-        return hook
+        # compile and load the executable module
+        module_exec = kernel.module.load(device)
+        if module_exec is None:
+            raise RuntimeError(f"Failed to load module for kernel {kernel.key}")
+        self.retained_executable_modules.add(module_exec)
+        return module_exec.get_kernel_hooks(kernel).forward
 
     def help_load_api(self):
         # ------------------------------------------------------------------
@@ -187,19 +188,8 @@ class Container:
                     execution=self.execution,
                     gpu_id=dev_idx,
                     data_view=data_view)
-                kernel  = self.k
-                kernel2 = self._get_kernel(
-                    container_runtime=Container.ContainerRuntime.warp,
-                    execution=self.execution,
-                    gpu_id=dev_idx,
-                    data_view=data_view)
+
                 wp_kernel_dim = thread_space.to_wp_kernel_dim()
-                foo = Container._get_kernel_hook(kernel, wp_device)
-                foo2 = Container._get_kernel_hook(kernel2, wp_device)
-
-                print(f"foo seen from warp {hex(foo)}")
-                print(f"foo2 seen from warp {hex(foo2)}")
-
                 wp.launch(kernel, dim=wp_kernel_dim, device=wp_device)
                 # TODO@Max - WARNING - the following synchronization is temporary
                 wp.synchronize_device(wp_device)
@@ -208,7 +198,6 @@ class Container:
             self,
             stream_idx: int,
             data_view: py_neon.DataView):
-        print(f"Neon kernel call stream {stream_idx}, dw {data_view.__str__()}")
         self.py_neon.lib.warp_container_run(self.container_handle,
                                             stream_idx,
                                             data_view)

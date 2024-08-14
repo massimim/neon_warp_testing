@@ -83,8 +83,8 @@ def _container_int():
         data_view=ne.DataView.standard(),
         container_runtime=wpne.Container.ContainerRuntime.neon)
     field.updateDeviceData(0)
-    sleep(10)
     wp.synchronize()
+    pass
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ import os
 
 from py_neon import Index_3d
 
-def _00_index3d():
+def test_00_index3d():
     # Get the path of the current script
     script_path = __file__
 
