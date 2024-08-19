@@ -3,6 +3,7 @@ from enum import Enum
 
 import nvtx
 import warp as wp
+#from skimage.restoration import cycle_spin
 
 import py_neon
 from py_neon import Py_neon
@@ -57,7 +58,7 @@ class Container:
                     k = self._get_kernel(execution=execution,
                                          gpu_id=dev_idx,
                                          data_view=py_neon.DataView.from_int(dw_idx),
-                                         container_runtime=Container.ContainerRuntime.warp)
+                                         container_runtime=Container.ContainerRuntime.neon)
                     # using self.k for debugging
                     offset = dev_idx * n_data_views + dw_idx
                     dev_str = self.backend.get_device_name(dev_idx)
@@ -74,7 +75,7 @@ class Container:
 
             self.container_handle = self.py_neon.handle_type(0)
             block_size = py_neon.Index_3d(128, 0, 0)
-            self.py_neon.lib.warp_dgrid_container_new(ctypes.byref(self.container_handle),
+            self.py_neon.lib.warp_dgrid_container_new(ctypes.pointer(self.container_handle),
                                                       execution,
                                                       self.backend.cuda_driver_handle,
                                                       self.data_set.get_handle(),
@@ -100,7 +101,7 @@ class Container:
     def help_load_api(self):
         # ------------------------------------------------------------------
         # backend_new
-        self.py_neon.lib.warp_dgrid_container_new.argtypes = [self.py_neon.handle_type,
+        self.py_neon.lib.warp_dgrid_container_new.argtypes = [ctypes.POINTER(self.py_neon.handle_type),
                                                               py_neon.Execution,
                                                               self.py_neon.handle_type,
                                                               self.py_neon.handle_type,
@@ -127,7 +128,6 @@ class Container:
                     gpu_id: int,
                     data_view: py_neon.DataView):
         # debug
-        container_runtime = Container.ContainerRuntime.warp
         span = self.data_set.get_span(execution=execution,
                                       dev_idx=gpu_id,
                                       data_view=data_view)
@@ -142,7 +142,7 @@ class Container:
             @wp.kernel
             def kernel():
                 x, y, z = wp.tid()
-                wp.printf("my kernel - tid: %d %d %d\n", x, y, z)
+                wp.printf("WARP my kernel - tid: %d %d %d\n", x, y, z)
                 myIdx = wp.neon_set(span, x, y, z)
                 print("my kernel - myIdx: ")
                 wp.neon_print(myIdx)
@@ -156,7 +156,7 @@ class Container:
                 is_active = wp.bool(False)
                 myIdx = wp.neon_set(span, is_active)
                 if is_active:
-                    print("kernel - myIdx: ")
+                    print("NEON-RUNTIME kernel - myIdx: ")
                     wp.neon_print(myIdx)
                     compute_lambda(myIdx)
 
