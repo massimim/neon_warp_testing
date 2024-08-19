@@ -85,7 +85,7 @@ CUDA_CALLABLE inline auto neon_read(
    return p(idx, card);
 }
 
-CUDA_CALLABLE inline auto NeonDensePartitionInt_write(
+CUDA_CALLABLE inline auto neon_write(
    NeonDensePartitionInt& p,
    NeonDenseIdx const & idx,
    int card,

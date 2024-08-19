@@ -10,9 +10,38 @@ def register_builtins():
 
     # create dense index
     wp.context.add_builtin(
-        "NeonDenseIdx_create",
+        "neon_idx_3d",
         input_types={"x": int, "y": int, "z": int},
         value_type=Index_3d,
+        missing_grad=True,
+    )
+
+    # create dense index
+    wp.context.add_builtin(
+        "neon_init",
+        input_types={"idx":Index_3d, "x": int, "y": int, "z": int},
+        value_type=None,
+        missing_grad=True,
+    )
+
+    wp.context.add_builtin(
+        "neon_get_x",
+        input_types={"idx":Index_3d},
+        value_type=int,
+        missing_grad=True,
+    )
+
+    wp.context.add_builtin(
+        "neon_get_y",
+        input_types={"idx":Index_3d},
+        value_type=int,
+        missing_grad=True,
+    )
+
+    wp.context.add_builtin(
+        "neon_get_z",
+        input_types={"idx":Index_3d},
+        value_type=int,
         missing_grad=True,
     )
 

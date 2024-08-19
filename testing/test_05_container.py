@@ -1,5 +1,3 @@
-from time import sleep
-
 from env_setup import update_pythonpath
 
 update_pythonpath()
@@ -18,14 +16,23 @@ def get_solver_operator_container(field):
     def setup(loader: wpne.Loader):
         loader.declare_execution_scope(field.get_grid())
 
-        # f_read = loader.get_read_handel(field)
+        f_read = loader.get_read_handel(field)
 
         @wp.func
         def foo(idx: typing.Any):
-            wp.print("::::::::::::::::::::::::::::::::::::::")
             wp.neon_print(idx)
             # wp.neon_print(f_read)
-            # value = wp.neon_read(f_read, idx, 0)
+            value = wp.neon_read(f_read, idx, 0)
+            value = (value +
+                     wp.neon_get_x(idx) +
+                     wp.neon_get_y(idx) +
+                     wp.neon_get_z(idx))
+            wp.print(value)
+
+
+            # value = value + int(idx.x)
+            wp.neon_write(f_read, idx, 0, value )
+
             # print(value)
 
         loader.declare_kernel(foo)
@@ -63,14 +70,20 @@ def _container_int():
     grid = ne.dense.dGrid(bk, dim)
     field = grid.new_field(cardinality=1)
 
-    # for z in range(0, dim.z):
-    #     for y in range(0, dim.y):
-    #         for x in range(0, dim.x):
-    #             field.write(idx=Index_3d(x, y, z),
-    #                         cardinality=0,
-    #                         newValue=x + y + z)
+    def set_value(idx: Index_3d):
+        return idx.x + idx.y + idx.z
 
-    # field.updateDeviceData(0)
+    for z in range(0, dim.z):
+        for y in range(0, dim.y):
+            for x in range(0, dim.x):
+                idx = Index_3d(x, y, z)
+                newValue = set_value(idx)
+                field.write(idx=idx,
+                            cardinality=0,
+                            newValue=newValue)
+
+    field.updateDeviceData(0)
+    wp.synchronize()
 
     solver_operator = get_solver_operator_container(field)
     solver_operator.run(
@@ -82,8 +95,21 @@ def _container_int():
         stream_idx=0,
         data_view=ne.DataView.standard(),
         container_runtime=wpne.Container.ContainerRuntime.neon)
-    field.updateDeviceData(0)
+
+    field.updateHostData(0)
     wp.synchronize()
+
+    for z in range(0, dim.z):
+        for y in range(0, dim.y):
+            for x in range(0, dim.x):
+                idx = Index_3d(x, y, z)
+                newValue = set_value(idx)
+                newValueRead = field.read(idx=idx,
+                                          cardinality=0)
+                different = (newValue*2) - newValueRead
+                if different != 0:
+                    print(f"Error: {newValue} != {newValueRead}, {different}")
+
     pass
 
 

@@ -25,7 +25,7 @@ def register_builtins():
     )
 
     wp.context.add_builtin(
-        "NeonDensePartitionInt_write",
+        "neon_write",
         input_types={"partition": dPartitionInt, 'idx': Index_3d, "card": int, "value": int},
         value_type=None,
         missing_grad=True,
