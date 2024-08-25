@@ -29,9 +29,8 @@ def get_solver_operator_container(field):
                      wp.neon_get_z(idx))
             wp.print(value)
 
-
             # value = value + int(idx.x)
-            wp.neon_write(f_read, idx, 0, value )
+            wp.neon_write(f_read, idx, 0, value)
 
             # print(value)
 
@@ -68,7 +67,7 @@ def _container_int():
 
     dim = Index_3d(1, 1, 3)
     grid = ne.dense.dGrid(bk, dim)
-    field = grid.new_field(cardinality=1)
+    field = grid.new_field(cardinality=1, dtype=int)
 
     def set_value(idx: Index_3d):
         return idx.x + idx.y + idx.z
@@ -106,7 +105,7 @@ def _container_int():
                 newValue = set_value(idx)
                 newValueRead = field.read(idx=idx,
                                           cardinality=0)
-                different = (newValue*2) - newValueRead
+                different = (newValue * 2) - newValueRead
                 if different != 0:
                     print(f"Error: {newValue} != {newValueRead}, {different}")
 

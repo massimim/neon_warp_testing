@@ -8,6 +8,8 @@ def register_builtins():
 
     # register type
     wp.types.add_type(dPartitionInt, native_name="NeonDensePartitionInt", has_binary_ctor=True)
+    # wp.types.add_type(dPartitionDouble, native_name="NeonDensePartitionDouble", has_binary_ctor=True)
+    # wp.types.add_type(dPartitionFloat, native_name="NeonDensePartitionFloat", has_binary_ctor=True)
 
     # print
     wp.context.add_builtin(
