@@ -63,7 +63,7 @@ class Container:
                     offset = dev_idx * n_data_views + dw_idx
                     dev_str = self.backend.get_device_name(dev_idx)
                     k_hook = self._get_kernel_hook(k, dev_str)
-                    print(f"hook {hex(k_hook)}, device {dev_idx}, data_view {dw_idx}")
+                    # print(f"hook {hex(k_hook)}, device {dev_idx}, data_view {dw_idx}")
                     self.k_2Darray[offset] = k_hook
 
             # debug = True
@@ -142,10 +142,10 @@ class Container:
             @wp.kernel
             def kernel():
                 x, y, z = wp.tid()
-                wp.printf("WARP my kernel - tid: %d %d %d\n", x, y, z)
+                # wp.printf("WARP my kernel - tid: %d %d %d\n", x, y, z)
                 myIdx = wp.neon_set(span, x, y, z)
-                print("my kernel - myIdx: ")
-                wp.neon_print(myIdx)
+                # print("my kernel - myIdx: ")
+                # wp.neon_print(myIdx)
                 compute_lambda(myIdx)
 
             return kernel
@@ -156,8 +156,8 @@ class Container:
                 is_active = wp.bool(False)
                 myIdx = wp.neon_set(span, is_active)
                 if is_active:
-                    print("NEON-RUNTIME kernel - myIdx: ")
-                    wp.neon_print(myIdx)
+                    # print("NEON-RUNTIME kernel - myIdx: ")
+                    # wp.neon_print(myIdx)
                     compute_lambda(myIdx)
 
             return kernel

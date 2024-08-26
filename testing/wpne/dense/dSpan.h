@@ -64,4 +64,5 @@ CUDA_CALLABLE inline auto neon_set(NeonDenseSpan& span, int x, int y, int z)
     return index;
 }
 
+
 }

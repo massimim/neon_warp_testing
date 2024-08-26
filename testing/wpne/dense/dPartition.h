@@ -100,4 +100,12 @@ CUDA_CALLABLE inline auto neon_write(
 {
     p(idx, card) = value;
 }
+
+template<typename T>
+CUDA_CALLABLE inline auto neon_cardinality(
+   NeonDensePartition<T>& p)
+ -> int
+{
+    return p.cardinality();
+}
 }
