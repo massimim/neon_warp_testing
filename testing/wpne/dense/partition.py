@@ -1,3 +1,5 @@
+import ctypes
+
 import warp as wp
 
 import py_neon.dense.dPartition as dPartition
@@ -5,15 +7,13 @@ from py_neon import Index_3d
 
 
 def register_builtins():
-    supported_types = [dPartition.dPartitionInt,
-                       dPartition.dPartitionFloat,
-                       dPartition.dPartitionDouble]
+    supported_types = [(dPartition.dPartitionInt, 'Int', int),
+                       (dPartition.dPartitionFloat, 'Float', wp.float32),
+                       (dPartition.dPartitionDouble, 'Double', ctypes.c_double)]
 
-    for Partition in supported_types:
+    for Partition, suffix, Type in supported_types:
         # register type
-        wp.types.add_type(Partition, native_name="NeonDensePartitionInt", has_binary_ctor=True)
-        # wp.types.add_type(dPartitionDouble, native_name="NeonDensePartitionDouble", has_binary_ctor=True)
-        # wp.types.add_type(dPartitionFloat, native_name="NeonDensePartitionFloat", has_binary_ctor=True)
+        wp.types.add_type(Partition, native_name=f"NeonDensePartition{suffix}", has_binary_ctor=True)
 
         # print
         wp.context.add_builtin(
@@ -26,13 +26,13 @@ def register_builtins():
         wp.context.add_builtin(
             "neon_read",
             input_types={"partition": Partition, 'idx': Index_3d, "card": int},
-            value_type=int,
+            value_type=Type,
             missing_grad=True,
         )
 
         wp.context.add_builtin(
             "neon_write",
-            input_types={"partition": Partition, 'idx': Index_3d, "card": int, "value": int},
+            input_types={"partition": Partition, 'idx': Index_3d, "card": int, "value": Type},
             value_type=None,
             missing_grad=True,
         )

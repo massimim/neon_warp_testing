@@ -9,21 +9,21 @@ import py_neon as ne
 from py_neon import Index_3d
 from py_neon.dense import dSpan
 import typing
-import numpy as np
 from typing import Any
 
 
 @wp.kernel
 def warp_AXPY(
         x: wp.array4d(dtype=Any),
-        y: wp.array4d(dtype=Any)):
+        y: wp.array4d(dtype=Any),
+        alpha: Any):
     i, j, k = wp.tid()
     for c in range(x.shape[0]):
-        y[c, k, j, i] = x[c, k, j, i] + 2 * y[c, k, j, i]
+        y[c, k, j, i] = x[c, k, j, i] + alpha * y[c, k, j, i]
 
 
 @wpne.Container.factory
-def get_AXPY(f_X, f_Y):
+def get_AXPY(f_X, f_Y, alpha: Any):
     def axpy(loader: wpne.Loader):
         loader.declare_execution_scope(f_Y.get_grid())
 
@@ -37,7 +37,7 @@ def get_AXPY(f_X, f_Y):
             for c in range(wp.neon_cardinality(f_x)):
                 x = wp.neon_read(f_x, idx, c)
                 y = wp.neon_read(f_y, idx, c)
-                axpy = x + 2 * y
+                axpy = x + alpha * y
                 wp.neon_write(f_y, idx, c, axpy)
 
             # print(value)
@@ -134,7 +134,7 @@ def execution(nun_devs: int,
     gpu_warp_Y = wp.array4d(cpu_warp_Y, dtype=dtype, device="cuda")
     wp.synchronize()
 
-    axpy = get_AXPY(f_X=field_X, f_Y=field_Y)
+    axpy = get_AXPY(f_X=field_X, f_Y=field_Y, alpha=alpha)
 
     axpy.run(
         stream_idx=0,
@@ -144,10 +144,11 @@ def execution(nun_devs: int,
     wp.synchronize()
     wp.launch(
         warp_AXPY,
-        dim = (dim.x,dim.y, dim.z),
+        dim=(dim.x, dim.y, dim.z),
         inputs=[
             gpu_warp_X,
             gpu_warp_Y,
+            alpha
         ]
     )
 
@@ -177,8 +178,13 @@ def execution(nun_devs: int,
                     assert expected == computed
 
 
-def gpu1_int():
-    execution(nun_devs=1, num_card=1, dim=ne.Index_3d(100, 100, 100), dtype=int,
+def gpu1_int(dimx):
+    execution(nun_devs=1, num_card=1, dim=ne.Index_3d(dimx, dimx, dimx), dtype=int,
+              container_runtime=wpne.Container.ContainerRuntime.neon)
+
+
+def gpu1_float(dimx):
+    execution(nun_devs=1, num_card=1, dim=ne.Index_3d(dimx, dimx, dimx), dtype=float,
               container_runtime=wpne.Container.ContainerRuntime.neon)
 
 
@@ -187,5 +193,5 @@ def gpu1_int():
 #               container_runtime=wpne.Container.ContainerRuntime.neon)
 
 if __name__ == "__main__":
-    gpu1_int()
-    # gpu1_float()
+    # gpu1_int()
+    gpu1_float(10)
