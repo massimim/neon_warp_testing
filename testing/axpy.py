@@ -194,4 +194,5 @@ def gpu1_float(dimx):
 
 if __name__ == "__main__":
     # gpu1_int()
+    # gpu1_int()
     gpu1_float(10)
