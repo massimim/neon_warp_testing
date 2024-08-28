@@ -11,7 +11,8 @@ namespace wp
 // using NeonDensePartitionInt = ::Neon::domain::details::dGrid::dPartition<int,0>;
 
 // NOTE: We create a subclass so that we can add a custom constructor
-class NeonDensePartitionInt : public ::Neon::domain::details::dGrid::dPartition<int,0>
+template <typename T>
+class NeonDensePartition : public ::Neon::domain::details::dGrid::dPartition<T,0>
 {
 public:
 
@@ -47,21 +48,25 @@ public:
    // }
 
    // initialize from bytes
-   NeonDensePartitionInt(const char* bytes, size_t n)
+   NeonDensePartition(const char* bytes, size_t n)
    {
       assert(n == sizeof(*this));
       memcpy(this, bytes, n);
    }
 
    // NOTE: need default constructor for adjoint vars
-   NeonDensePartitionInt()
+   NeonDensePartition()
    {
    }
 };
 
+using NeonDensePartitionInt = NeonDensePartition<int>;
+using NeonDensePartitionDouble = NeonDensePartition<double>;
+using NeonDensePartitionFloat = NeonDensePartition<float>;
 
 // print
-CUDA_CALLABLE inline auto neon_print(const NeonDensePartitionInt& p) -> void
+template<typename T>
+CUDA_CALLABLE inline auto neon_print_generic(const NeonDensePartition<T>& p) -> void
 {
    const Neon::index_3d& dim = p.dim();
    const Neon::index_3d& halo = p.halo();
@@ -75,23 +80,32 @@ CUDA_CALLABLE inline auto neon_print(const NeonDensePartitionInt& p) -> void
    );
 }
 
+template<typename T>
 CUDA_CALLABLE inline auto neon_read(
-   NeonDensePartitionInt& p,
+   NeonDensePartition<T>& p,
    NeonDenseIdx const & idx,
    int card)
- -> int
+ -> T
 {
-   printf("%p\n",p.mem());
    return p(idx, card);
 }
 
-CUDA_CALLABLE inline auto NeonDensePartitionInt_write(
-   NeonDensePartitionInt& p,
+template<typename T>
+CUDA_CALLABLE inline auto neon_write(
+   NeonDensePartition<T>& p,
    NeonDenseIdx const & idx,
    int card,
-   int  const& value)
+   T  const& value)
  -> void
 {
     p(idx, card) = value;
+}
+
+template<typename T>
+CUDA_CALLABLE inline auto neon_cardinality(
+   NeonDensePartition<T>& p)
+ -> int
+{
+    return p.cardinality();
 }
 }

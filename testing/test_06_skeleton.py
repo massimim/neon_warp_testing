@@ -8,6 +8,7 @@ import wpne
 import py_neon as ne
 from py_neon import Index_3d
 from py_neon.dense import dSpan
+from py_neon.skeleton import Skeleton
 import typing
 
 
@@ -39,7 +40,7 @@ def get_solver_operator_container(field):
     return setup
 
 
-def _container_int():
+def test_container_int():
     # Get the path of the current script
     script_path = __file__
     # Get the directory containing the script
@@ -95,6 +96,10 @@ def _container_int():
         data_view=ne.DataView.standard(),
         container_runtime=wpne.Container.ContainerRuntime.neon)
 
+    sk = Skeleton(backend=bk)
+    sk.sequence("skeletonTest", [solver_operator])
+    sk.run(stream_idx=0)
+
     field.updateHostData(0)
     wp.synchronize()
 
@@ -113,4 +118,4 @@ def _container_int():
 
 
 if __name__ == "__main__":
-    _container_int()
+    test_container_int()
