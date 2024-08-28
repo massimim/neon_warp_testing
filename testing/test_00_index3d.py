@@ -42,7 +42,7 @@ def test_00_index3d():
 
     @wp.kernel
     def index_create_kernel():
-        idx = wp.NeonDenseIdx_create(17, 42, 99)
+        idx = wp.neon_idx_3d(17, 42, 99)
         wp.neon_print(idx)
 
 
