@@ -3,7 +3,7 @@
 #include <cstdio>
 
 #include "Neon/domain/details/dGrid/dSpan.h"
-#include "./dIdx.h"
+#include "../Index_3d.h"
 
 // TODO: currently, all types and builtins need to be in the wp:: namespace
 namespace wp

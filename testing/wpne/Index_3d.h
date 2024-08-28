@@ -8,6 +8,7 @@ namespace wp
 
 // import types into this namespace
 using NeonDenseIdx = ::Neon::domain::details::dGrid::dIndex;
+using NeonIndex3d = ::Neon::domain::details::dGrid::dIndex;
 
 // create dense index
 CUDA_CALLABLE inline auto neon_idx_3d(int x, int y, int z) -> NeonDenseIdx

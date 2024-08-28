@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Neon/domain/details/dGrid/dPartition.h"
-#include "./dIdx.h"
+#include "../Index_3d.h"
 
 // NOTE: we need this header to avoid errors about missing copy constructor for Pitch (Vec_4d)
 #include "Neon/core/types/vec/vec4d_integer.timp.h"
@@ -67,6 +67,21 @@ using NeonDensePartitionFloat = NeonDensePartition<float>;
 // print
 template<typename T>
 CUDA_CALLABLE inline auto neon_print_generic(const NeonDensePartition<T>& p) -> void
+{
+   const Neon::index_3d& dim = p.dim();
+   const Neon::index_3d& halo = p.halo();
+   const Neon::index_3d& origin = p.origin();
+
+   printf("NeonDensePartitionInt(dim={%d, %d, %d}, halo={%d, %d, %d}, origin={%d, %d, %d}, mem=%p)\n",
+      dim.x, dim.y, dim.z,
+      halo.x, halo.y, halo.z,
+      origin.x, origin.y, origin.z,
+      p.mem()
+   );
+}
+
+template<typename T>
+CUDA_CALLABLE inline auto neon_read_ngh_generic(const NeonDensePartition<T>& p) -> void
 {
    const Neon::index_3d& dim = p.dim();
    const Neon::index_3d& halo = p.halo();
