@@ -1,9 +1,9 @@
-import ctypes
 import os
 import warp as wp
 
-from .dense.idx import NeonDenseIdx
-from .dense.span import NeonDenseSpan
+from .container import Container
+from .loader import Loader
+
 
 def _add_header(path):
     include_directive = f"#include \"{path}\"\n"
@@ -15,20 +15,21 @@ def _add_header(path):
 def _register_dense_headers():
     include_path = os.path.abspath(os.path.dirname(__file__))
     _add_header(f"{include_path}/dense/dIdx.h")
+    _add_header(f"{include_path}/dense/dDataView.h")
     _add_header(f"{include_path}/dense/dSpan.h")
     _add_header(f"{include_path}/dense/dPartition.h")
 
-def _register_dense_builtins():
-    from .dense.partition import NeonDensePartitionInt
 
-    NeonDenseIdx.register_builtins()
-    NeonDenseSpan._register_builtins()
-    NeonDensePartitionInt._register_builtins()
+def _register_dense_builtins():
+    from .dense import idx, data_view, span, partition
+
+    idx.register_builtins()
+    data_view.register_builtins()
+    span.register_builtins()
+    partition.register_builtins()
+
 
 def init():
     _register_dense_headers()
     _register_dense_builtins()
-    # dense.span._register_builtins()
 
-
-# print(f"?????? {id(ne.dense.Span)}")

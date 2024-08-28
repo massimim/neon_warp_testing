@@ -1,5 +1,5 @@
 git clone git@github.com:Autodesk/Neon.git -b py neon_py_bindings
-git clone git@github.com:massimim/warp.git -b external-source-support warp
+git clone git@github.com:nvlukasz/warp.git -b external-source-support warp
 
 cd neon_py_bindings
 mkdir cmake-build-debug

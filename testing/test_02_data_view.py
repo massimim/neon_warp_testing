@@ -5,9 +5,11 @@ import warp as wp
 import wpne
 import os
 
-from py_neon import Index_3d
+from py_neon import DataView
 
-def test_00_index3d():
+def test_02_data_view():
+
+
     # Get the path of the current script
     script_path = __file__
 
@@ -36,25 +38,23 @@ def test_00_index3d():
 
 
     @wp.kernel
-    def index_print_kernel(idx: Index_3d):
-        wp.neon_print(idx)
-
-
-    @wp.kernel
-    def index_create_kernel():
-        idx = wp.NeonDenseIdx_create(17, 42, 99)
-        wp.neon_print(idx)
+    def print_kernel(a: DataView, b: DataView, c: DataView):
+        wp.NeonDataView_print(a)
+        wp.NeonDataView_print(b)
+        wp.NeonDataView_print(c)
 
 
     with wp.ScopedDevice("cuda:0"):
-        # pass index to a kernel
-        idx = Index_3d(11, 22, 33)
-        wp.launch(index_print_kernel, dim=1, inputs=[idx])
 
-        # create index in a kernel
-        wp.launch(index_create_kernel, dim=1, inputs=[])
+        d0 = DataView(DataView.Values.standard)
+        d1 = DataView(DataView.Values.internal)
+        d2 = DataView(DataView.Values.boundary)
+
+        wp.launch(print_kernel, dim=1, inputs=[d0, d1, d2])
 
         wp.synchronize_device()
 
-if __name__ == "__main__":
-    _00_index3d()
+    print("Done.")
+
+
+test_02_data_view()
