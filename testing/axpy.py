@@ -178,13 +178,13 @@ def execution(nun_devs: int,
                     assert expected == computed
 
 
-def gpu1_int(dimx):
-    execution(nun_devs=1, num_card=1, dim=ne.Index_3d(dimx, dimx, dimx), dtype=int,
+def gpu1_int(dimx, neon_ngpus:int=1):
+    execution(nun_devs=neon_ngpus, num_card=1, dim=ne.Index_3d(dimx, dimx, dimx), dtype=int,
               container_runtime=wpne.Container.ContainerRuntime.neon)
 
 
-def gpu1_float(dimx):
-    execution(nun_devs=1, num_card=1, dim=ne.Index_3d(dimx, dimx, dimx), dtype=float,
+def gpu1_float(dimx, neon_ngpus:int=1):
+    execution(nun_devs=neon_ngpus, num_card=1, dim=ne.Index_3d(dimx, dimx, dimx), dtype=float,
               container_runtime=wpne.Container.ContainerRuntime.neon)
 
 
@@ -195,4 +195,4 @@ def gpu1_float(dimx):
 if __name__ == "__main__":
     # gpu1_int()
     # gpu1_int()
-    gpu1_float(10)
+    gpu1_float(10, 2)

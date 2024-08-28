@@ -3,7 +3,7 @@ from enum import Enum
 
 import nvtx
 import warp as wp
-#from skimage.restoration import cycle_spin
+# from skimage.restoration import cycle_spin
 
 import py_neon
 from py_neon import Py_neon
@@ -19,7 +19,6 @@ class Container:
     # This is a set of compiled executable modules loaded by Warp.
     # When getting kernel hooks, we can retain the module references here
     # to prevent them from being unloaded prematurely.
-    retained_executable_modules = set()
 
     def __init__(self,
                  loading_lambda=None,
@@ -49,6 +48,7 @@ class Container:
             self.backend = self.data_set.get_backend()
             # Setting up the information of the Neon container for Neon runtime
             n_devices = self.backend.get_num_devices()  # rows
+            self.retained_executable_modules = [set() for _ in range(n_devices)]
             n_data_views = 3  # columns
             # Create a NumPy array of object dtype
             self.k_2Darray = (ctypes.c_void_p * (n_data_views * n_devices))()
@@ -62,7 +62,7 @@ class Container:
                     # using self.k for debugging
                     offset = dev_idx * n_data_views + dw_idx
                     dev_str = self.backend.get_device_name(dev_idx)
-                    k_hook = self._get_kernel_hook(k, dev_str)
+                    k_hook = self._get_kernel_hook(k, dev_str, dev_idx)
                     # print(f"hook {hex(k_hook)}, device {dev_idx}, data_view {dw_idx}")
                     self.k_2Darray[offset] = k_hook
 
@@ -82,7 +82,7 @@ class Container:
                                                       self.k_2Darray,
                                                       block_size)
 
-    def _get_kernel_hook(self, kernel, decvice_str):
+    def _get_kernel_hook(self, kernel, decvice_str, dev_idx):
         """
          decvice_str = "cuda:0"
         :param kernel:
@@ -95,7 +95,7 @@ class Container:
         module_exec = kernel.module.load(device)
         if module_exec is None:
             raise RuntimeError(f"Failed to load module for kernel {kernel.key}")
-        self.retained_executable_modules.add(module_exec)
+        self.retained_executable_modules[dev_idx].add(module_exec)
         return module_exec.get_kernel_hooks(kernel).forward
 
     def help_load_api(self):
