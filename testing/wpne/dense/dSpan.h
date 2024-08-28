@@ -53,6 +53,7 @@ CUDA_CALLABLE inline auto neon_set(NeonDenseSpan& span, bool& is_valid)
     NeonDenseIdx index;
     using DummyType = int;
     is_valid = span.template setAndValidate_warp<DummyType>(index);
+
     return index;
 }
 

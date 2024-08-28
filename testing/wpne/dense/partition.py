@@ -6,6 +6,7 @@ import py_neon.dense.dPartition as dPartition
 from py_neon import Index_3d
 
 
+
 def register_builtins():
     supported_types = [(dPartition.dPartitionInt, 'Int', int),
                        (dPartition.dPartitionFloat, 'Float', wp.float32),
@@ -43,3 +44,4 @@ def register_builtins():
             value_type=int,
             missing_grad=True,
         )
+

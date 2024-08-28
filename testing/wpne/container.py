@@ -3,7 +3,6 @@ from enum import Enum
 
 import nvtx
 import warp as wp
-# from skimage.restoration import cycle_spin
 
 import py_neon
 from py_neon import Py_neon
@@ -49,6 +48,7 @@ class Container:
             # Setting up the information of the Neon container for Neon runtime
             n_devices = self.backend.get_num_devices()  # rows
             self.retained_executable_modules = [set() for _ in range(n_devices)]
+
             n_data_views = 3  # columns
             # Create a NumPy array of object dtype
             self.k_2Darray = (ctypes.c_void_p * (n_data_views * n_devices))()
@@ -64,6 +64,7 @@ class Container:
                     dev_str = self.backend.get_device_name(dev_idx)
                     k_hook = self._get_kernel_hook(k, dev_str, dev_idx)
                     # print(f"hook {hex(k_hook)}, device {dev_idx}, data_view {dw_idx}")
+
                     self.k_2Darray[offset] = k_hook
 
             # debug = True
@@ -127,7 +128,6 @@ class Container:
                     execution: py_neon.Execution,
                     gpu_id: int,
                     data_view: py_neon.DataView):
-        # debug
         span = self.data_set.get_span(execution=execution,
                                       dev_idx=gpu_id,
                                       data_view=data_view)
