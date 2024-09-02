@@ -2,6 +2,7 @@
 
 #include "Neon/domain/details/dGrid/dPartition.h"
 #include "../Index_3d.h"
+#include "../ngh_idx.h"
 
 // NOTE: we need this header to avoid errors about missing copy constructor for Pitch (Vec_4d)
 #include "Neon/core/types/vec/vec4d_integer.timp.h"
@@ -122,5 +123,20 @@ CUDA_CALLABLE inline auto neon_cardinality(
  -> int
 {
     return p.cardinality();
+}
+
+template<typename T>
+CUDA_CALLABLE inline auto neon_ngh_data(
+    const NeonDensePartition<T>& p,
+    NeonDenseIdx const & idx,
+    NeonNghIdx const & ngh,
+     int card,
+     T alternative,
+      bool& valid
+    ) -> T
+{
+    typename NeonDensePartition<T>::NghData nghData = p.getNghData(idx, ngh, card, alternative);
+    valid = nghData.isValid();
+    return nghData.getData();
 }
 }

@@ -15,6 +15,7 @@ def _register_base_headers():
     include_path = os.path.abspath(os.path.dirname(__file__))
     _add_header(f"{include_path}/Index_3d.h")
     _add_header(f"{include_path}/dDataView.h")
+    _add_header(f"{include_path}/ngh_idx.h")
 
 
 def _register_dense_headers():
@@ -23,10 +24,11 @@ def _register_dense_headers():
     _add_header(f"{include_path}/dense/dPartition.h")
 
 def _register_base_builtins():
-    from wpne import idx_3d, data_view
+    from wpne import idx_3d, data_view, ngh_idx
 
     idx_3d.register_builtins()
     data_view.register_builtins()
+    ngh_idx.register_builtins()
 
 
 def _register_dense_builtins():
