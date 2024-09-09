@@ -61,9 +61,17 @@ public:
    }
 };
 
-using NeonDensePartitionInt = NeonDensePartition<int>;
-using NeonDensePartitionDouble = NeonDensePartition<double>;
-using NeonDensePartitionFloat = NeonDensePartition<float>;
+using NeonDensePartition_int8 = NeonDensePartition<int8_t>;
+using NeonDensePartition_uint8 = NeonDensePartition<uint8_t>;
+
+using NeonDensePartition_int32 = NeonDensePartition<int32_t>;
+using NeonDensePartition_uint32 = NeonDensePartition<uint32_t>;
+
+using NeonDensePartition_int64 = NeonDensePartition<int64_t>;
+using NeonDensePartition_uint64 = NeonDensePartition<uint64_t>;
+
+using NeonDensePartition_float32 = NeonDensePartition<float>;
+using NeonDensePartition_float64 = NeonDensePartition<double>;
 
 // print
 template<typename T>

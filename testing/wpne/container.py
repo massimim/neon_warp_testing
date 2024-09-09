@@ -2,6 +2,7 @@ import ctypes
 from enum import Enum
 
 import nvtx
+import typing
 import warp as wp
 
 import py_neon
@@ -213,11 +214,6 @@ class Container:
             self._run_neon(stream_idx=stream_idx,
                            data_view=data_view)
 
-    # def _set_data(self, data_set):
-    #     self.data_set = data_set
-    #
-    # def _set_loading_lambda(self, loading_lambda):
-    #     self.loading_lambda = loading_lambda
     @staticmethod
     def factory(loading_lambda_generator):
         def container_generator(*args, **kwargs):
@@ -226,3 +222,30 @@ class Container:
             return container
 
         return container_generator
+
+    @staticmethod
+    def fill(field: typing.Any,
+             fill_value: typing.Any):
+
+        @Container.factory
+        def container_fill(field):
+            def fill_container(loader: Loader):
+                loader.declare_execution_scope(field.get_grid())
+                f = loader.get_read_handel(field)
+
+                @wp.func
+                def foo(idx: typing.Any):
+                    for c in range(wp.neon_cardinality(f)):
+                        wp.neon_write(f, idx, c, fill_value)
+
+                loader.declare_kernel(foo)
+
+            return fill_container
+
+        ret = container_fill(field=field)
+        return ret
+
+    @staticmethod
+    def zero(field):
+        ret = Container.fill(field=field, fill_value=field.type(0))
+        return ret

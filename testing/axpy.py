@@ -78,7 +78,7 @@ def execution(nun_devs: int,
     bk = ne.Backend(runtime=ne.Backend.Runtime.stream,
                     dev_idx_list=dev_idx_list)
 
-    grid = ne.dense.dGrid(bk, dim)
+    grid = ne.dense.dGrid(bk, dim, sparsity=None, stencil=[[0, 0, 0]])
     field_X = grid.new_field(cardinality=num_card, dtype=dtype)
     field_Y = grid.new_field(cardinality=num_card, dtype=dtype)
     field_result = grid.new_field(cardinality=num_card, dtype=dtype)
@@ -178,13 +178,13 @@ def execution(nun_devs: int,
                     assert expected == computed
 
 
-def gpu1_int(dimx, neon_ngpus:int=1):
+def gpu1_int(dimx, neon_ngpus: int = 1):
     execution(nun_devs=neon_ngpus, num_card=1, dim=ne.Index_3d(dimx, dimx, dimx), dtype=int,
               container_runtime=wpne.Container.ContainerRuntime.neon)
 
 
-def gpu1_float(dimx, neon_ngpus:int=1):
-    execution(nun_devs=neon_ngpus, num_card=1, dim=ne.Index_3d(dimx, dimx, dimx), dtype=float,
+def gpu1_float(dimx, neon_ngpus: int = 1):
+    execution(nun_devs=neon_ngpus, num_card=1, dim=ne.Index_3d(dimx, dimx, dimx), dtype=wp.float32,
               container_runtime=wpne.Container.ContainerRuntime.neon)
 
 
