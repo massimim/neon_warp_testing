@@ -39,7 +39,7 @@ def get_solver_operator_container(field):
     return setup
 
 
-def _container_int():
+def test_container_int():
     # Get the path of the current script
     script_path = __file__
     # Get the directory containing the script
@@ -67,7 +67,7 @@ def _container_int():
 
     dim = Index_3d(1, 1, 3)
     grid = ne.dense.dGrid(bk, dim)
-    field = grid.new_field(cardinality=1, dtype=int)
+    field = grid.new_field(cardinality=1, dtype='int32')
 
     def set_value(idx: Index_3d):
         return idx.x + idx.y + idx.z

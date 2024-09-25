@@ -38,6 +38,7 @@ def get_AXPY(f_X, f_Y, alpha: Any):
                 x = wp.neon_read(f_x, idx, c)
                 y = wp.neon_read(f_y, idx, c)
                 axpy = x + alpha * y
+                wp.print(alpha)
                 wp.neon_write(f_y, idx, c, axpy)
 
             # print(value)
@@ -166,16 +167,19 @@ def execution(nun_devs: int,
                 for c in range(0, num_card):
                     idx = Index_3d(xi, yi, zi)
                     _, _, expected = golden_axpy(idx, c)
-                    computed = field_Y.read(idx=idx,
+                    neon_res = field_Y.read(idx=idx,
                                             cardinality=c)
-                    if expected != computed:
-                        print(f'neon error at {xi},{yi},{zi} :{expected} cvs {computed}')
-                    assert expected == computed
-
                     wp_res = np_array_Y[c, zi, yi, xi]
+
                     if wp_res != expected:
                         print(f'warp error at {xi},{yi},{zi} :{expected} cvs {wp_res}')
-                    assert expected == computed
+                    assert wp_res == expected
+
+                    if neon_res != expected:
+                        print(f'neon error at {xi},{yi},{zi} :{expected} cvs {neon_res}')
+                    assert expected == neon_res
+
+
 
 
 def gpu1_int(dimx, neon_ngpus: int = 1):
@@ -195,4 +199,4 @@ def gpu1_float(dimx, neon_ngpus: int = 1):
 if __name__ == "__main__":
     # gpu1_int()
     # gpu1_int()
-    gpu1_float(100, 2)
+    gpu1_float(10, 1)

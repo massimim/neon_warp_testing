@@ -122,7 +122,7 @@ def execution(nun_devs: int,
         def golden_jacobi_input(idx: ne.Index_3d):
             return dtype(idx.x + idx.y + idx.z), dtype(idx.x + idx.y + idx.z + 1)
 
-        tmp = 0
+        tmp = dtype(0)
         for di in [-1, 1]:
             for dj in [-1, 1]:
                 for dk in [-1, 1]:
@@ -220,7 +220,7 @@ def gpu1_int(dimx, neon_ngpus: int = 1):
 
 
 def gpu1_float(dimx, neon_ngpus: int = 1):
-    execution(nun_devs=neon_ngpus, dim=ne.Index_3d(dimx, dimx, dimx), dtype=float,
+    execution(nun_devs=neon_ngpus, dim=ne.Index_3d(dimx, dimx, dimx), dtype=wp.float32,
               container_runtime=wpne.Container.ContainerRuntime.neon)
 
 
