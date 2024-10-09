@@ -57,4 +57,4 @@ def test_00_index3d():
         wp.synchronize_device()
 
 if __name__ == "__main__":
-    _00_index3d()
+    test_00_index3d()

@@ -199,4 +199,4 @@ def gpu1_float(dimx, neon_ngpus: int = 1):
 if __name__ == "__main__":
     # gpu1_int()
     # gpu1_int()
-    gpu1_float(10, 1)
+    gpu1_float(10, 2)
