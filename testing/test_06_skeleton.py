@@ -68,7 +68,7 @@ def test_container_int():
 
     dim = Index_3d(1, 1, 3)
     grid = ne.dense.dGrid(bk, dim)
-    field = grid.new_field(cardinality=1, dtype=int)
+    field = grid.new_field(cardinality=1, dtype=wp.int32)
 
     def set_value(idx: Index_3d):
         return idx.x + idx.y + idx.z
