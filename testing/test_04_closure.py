@@ -8,7 +8,7 @@ import wpne
 import py_neon
 from py_neon import Index_3d, DataView
 from py_neon.dense import dSpan
-from py_neon.dense.dPartition import dPartitionInt
+#from py_neon.dense.dPartition import dPartitionInt
 
 import os
 

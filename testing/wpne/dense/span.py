@@ -2,7 +2,7 @@ import warp as wp
 
 from py_neon import Index_3d
 from py_neon.dense import dSpan
-
+from py_neon.dense import dIndex
 
 def register_builtins():
     # register type
@@ -19,13 +19,13 @@ def register_builtins():
     wp.context.add_builtin(
         "neon_set",
         input_types={"span": dSpan, "is_valid": wp.bool},
-        value_type=Index_3d,
+        value_type=dIndex,
         missing_grad=True,
     )
 
     wp.context.add_builtin(
         "neon_set",
         input_types={"span": dSpan, 'x': int, 'y': int, 'z': int},
-        value_type=Index_3d,
+        value_type=dIndex,
         missing_grad=True,
     )

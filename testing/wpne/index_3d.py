@@ -6,7 +6,7 @@ from py_neon import Index_3d
 def register_builtins():
 
     # register type
-    wp.types.add_type(Index_3d, native_name="NeonDenseIdx")
+    wp.types.add_type(Index_3d, native_name="NeonIndex3d")
 
     # create dense index
     wp.context.add_builtin(

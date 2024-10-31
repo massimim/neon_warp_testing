@@ -212,6 +212,8 @@ def execution(nun_devs: int,
                 if wp_res != expected:
                     print(f'warp error at {xi},{yi},{zi} :{expected} cvs {wp_res}')
                 assert expected == computed
+    print("Test Passed")
+
 
 
 def gpu1_int(dimx, neon_ngpus: int = 1):

@@ -3,6 +3,7 @@ import ctypes
 import warp as wp
 
 import py_neon.dense.dPartition as dPartition
+import py_neon.dense.dIndex as dIndex
 from py_neon import Index_3d
 from py_neon import Ngh_idx
 
@@ -26,7 +27,7 @@ def register_builtins():
 
         # print
         wp.context.add_builtin(
-            "neon_print",
+            "neon_print_dbg",
             input_types={"p": Partition},
             value_type=None,
             missing_grad=True,
@@ -34,14 +35,14 @@ def register_builtins():
 
         wp.context.add_builtin(
             "neon_read",
-            input_types={"partition": Partition, 'idx': Index_3d, "card": int},
+            input_types={"partition": Partition, 'idx': dIndex, "card": int},
             value_type=Type,
             missing_grad=True,
         )
 
         wp.context.add_builtin(
             "neon_write",
-            input_types={"partition": Partition, 'idx': Index_3d, "card": int, "value": Type},
+            input_types={"partition": Partition, 'idx': dIndex, "card": int, "value": Type},
             value_type=None,
             missing_grad=True,
         )
@@ -56,11 +57,31 @@ def register_builtins():
         wp.context.add_builtin(
             "neon_ngh_data",
             input_types={"partition": Partition,
-                         'idx': Index_3d,
+                         'idx': dIndex,
                          'ngh_idx': Ngh_idx,
                          "card": wp.int32,
                          "alternative": Type,
                          'is_valid': wp.bool},
             value_type=Type,
+            missing_grad=True,
+        )
+        wp.context.add_builtin(
+            "neon_partition_id",
+            input_types={"partition": Partition},
+            value_type=int,
+            missing_grad=True,
+        )
+
+        wp.context.add_builtin(
+            "neon_device_id",
+            input_types={"partition": Partition},
+            value_type=int,
+            missing_grad=True,
+        )
+
+        wp.context.add_builtin(
+            "neon_global_idx",
+            input_types={"partition": Partition, 'idx': dIndex},
+            value_type=Index_3d,
             missing_grad=True,
         )

@@ -7,7 +7,7 @@ import warp as wp
 
 import py_neon
 from py_neon import Py_neon
-from .loader import Loader
+from wpne.loader import Loader
 
 
 class Container:

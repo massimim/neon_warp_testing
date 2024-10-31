@@ -34,9 +34,10 @@ wp.build.clear_kernel_cache()
 # !!! DO THIS BEFORE DEFINING/USING ANY KERNELS WITH CUSTOM TYPES
 wpne.init()
 
+import typing
 
 @wp.func
-def user_foo(idx: Index_3d):
+def user_foo(idx: ne.dense.dIndex):
     wp.neon_print(idx)
 
 
@@ -44,7 +45,7 @@ def user_foo(idx: Index_3d):
 def neon_kernel_test(span: dSpan):
     # this is a Warp array which wraps the image data
     is_valid = wp.bool(True)
-    myIdx = wp.NeonDenseSpan_set_idx(span, is_valid)
+    myIdx = wp.neon_set(span, is_valid)
     if is_valid:
         user_foo(myIdx)
 

@@ -7,41 +7,40 @@ namespace wp
 {
 
 // import types into this namespace
-using NeonDenseIdx = ::Neon::domain::details::dGrid::dIndex;
-using NeonIndex3d = ::Neon::domain::details::dGrid::dIndex;
+using NeonIndex3d = ::Neon::index_3d;
 
 // create dense index
-CUDA_CALLABLE inline auto neon_idx_3d(int x, int y, int z) -> NeonDenseIdx
+CUDA_CALLABLE inline auto neon_idx_3d(int x, int y, int z) -> NeonIndex3d
 {
-    return NeonDenseIdx(x, y, z);
+    return NeonIndex3d(x, y, z);
 }
 
-CUDA_CALLABLE inline auto neon_init(NeonDenseIdx& idx, int x, int y, int z) -> void
+CUDA_CALLABLE inline auto neon_init(NeonIndex3d& idx, int x, int y, int z) -> void
 {
-    idx.setLocation().x= x;
-    idx.setLocation().y= y;
-    idx.setLocation().z= z;
+    idx.x= x;
+    idx.y= y;
+    idx.z= z;
 }
 
-CUDA_CALLABLE inline auto neon_get_x(NeonDenseIdx& idx) -> int
+CUDA_CALLABLE inline auto neon_get_x(NeonIndex3d& idx) -> int
 {
-    return idx.getLocation().x  ;
+    return idx.x  ;
 }
 
-CUDA_CALLABLE inline auto neon_get_y(NeonDenseIdx& idx) -> int
+CUDA_CALLABLE inline auto neon_get_y(NeonIndex3d& idx) -> int
 {
-    return idx.getLocation().y;
+    return idx.y;
 }
 
-CUDA_CALLABLE inline auto neon_get_z(NeonDenseIdx& idx) -> int
+CUDA_CALLABLE inline auto neon_get_z(NeonIndex3d& idx) -> int
 {
-    return idx.getLocation().z;
+    return idx.z;
 }
 
 // print dense index
-CUDA_CALLABLE inline auto neon_print(const NeonDenseIdx& a) -> void
+CUDA_CALLABLE inline auto neon_print(const NeonIndex3d& a) -> void
 {
-    printf("neon_print - NeonDenseIdx(%d, %d, %d)\n", a.getLocation().x,  a.getLocation().y, a.getLocation().z);
+    printf("neon_print - NeonIndex3d(%d, %d, %d)\n", a.x,  a.y, a.z);
 }
 
 }

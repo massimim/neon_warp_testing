@@ -2,6 +2,7 @@
 
 #include "Neon/domain/details/dGrid/dPartition.h"
 #include "../Index_3d.h"
+#include "./dIndex.h"
 #include "../ngh_idx.h"
 
 // NOTE: we need this header to avoid errors about missing copy constructor for Pitch (Vec_4d)
@@ -73,21 +74,7 @@ using NeonDensePartition_uint64 = NeonDensePartition<uint64_t>;
 using NeonDensePartition_float32 = NeonDensePartition<float>;
 using NeonDensePartition_float64 = NeonDensePartition<double>;
 
-// print
-template<typename T>
-CUDA_CALLABLE inline auto neon_print_generic(const NeonDensePartition<T>& p) -> void
-{
-   const Neon::index_3d& dim = p.dim();
-   const Neon::index_3d& halo = p.halo();
-   const Neon::index_3d& origin = p.origin();
 
-   printf("NeonDensePartitionInt(dim={%d, %d, %d}, halo={%d, %d, %d}, origin={%d, %d, %d}, mem=%p)\n",
-      dim.x, dim.y, dim.z,
-      halo.x, halo.y, halo.z,
-      origin.x, origin.y, origin.z,
-      p.mem()
-   );
-}
 
 template<typename T>
 CUDA_CALLABLE inline auto neon_read_ngh_generic(const NeonDensePartition<T>& p) -> void
@@ -147,4 +134,40 @@ CUDA_CALLABLE inline auto neon_ngh_data(
     valid = nghData.isValid();
     return nghData.getData();
 }
+
+template<typename T>
+CUDA_CALLABLE inline auto neon_partition_id(
+   NeonDensePartition<T>& p)
+ -> int
+{
+   return p.prtID();
+}
+
+// print
+template<typename T>
+CUDA_CALLABLE inline auto neon_print_dbg(const NeonDensePartition<T>& p) -> void
+{
+   const Neon::index_3d& dim = p.dim();
+   const Neon::index_3d& halo = p.halo();
+   const Neon::index_3d& origin = p.origin();
+   const int prtID = p.prtID();
+   printf("NeonDensePartition(dim={%d, %d, %d}, halo={%d, %d, %d}, origin={%d, %d, %d}, mem=%p prtID %d)\n",
+      dim.x, dim.y, dim.z,
+      halo.x, halo.y, halo.z,
+      origin.x, origin.y, origin.z,
+      p.mem(),
+      prtID
+   );
+}
+
+template<typename T>
+CUDA_CALLABLE inline auto neon_global_idx(
+   NeonDensePartition<T>& p,
+   NeonDenseIdx const & idx)
+     -> Neon::index_3d
+{
+     Neon::index_3d globalIdx = p.getGlobalIndex(idx);
+     return globalIdx;
+}
+
 }

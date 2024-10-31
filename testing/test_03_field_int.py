@@ -26,7 +26,7 @@ def _field_int():
         # print(f"?????? NeonDensePartitionInt {id(NeonDensePartitionInt)}, {type(NeonDensePartitionInt)}, {partition.get_my_name()}")
 
         @wp.func
-        def user_foo(idx: Index_3d):
+        def user_foo(idx: ne.dense.dIndex):
             wp.neon_print(idx)
             value = wp.neon_read(partition, idx, 0)
             print(33)
@@ -34,7 +34,7 @@ def _field_int():
         @wp.kernel
         def neon_kernel_test(span: dSpan):
             is_valid = wp.bool(True)
-            myIdx = wp.NeonDenseSpan_set_idx(span, is_valid)
+            myIdx = wp.neon_set(span, is_valid)
             if is_valid:
                 user_foo(myIdx)
 
@@ -67,7 +67,7 @@ def _field_int():
                                                  ne.DataView.standard())
         print(span_device_id0_standard)
 
-        field = grid.new_field(cardinality=1)
+        field = grid.new_field(cardinality=1, dtype=wp.int32)
 
         container = conainer_kernel_generator(field)
         wp.launch(container, dim=1, inputs=[span_device_id0_standard])

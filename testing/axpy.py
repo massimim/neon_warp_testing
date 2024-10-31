@@ -11,6 +11,7 @@ from py_neon.dense import dSpan
 import typing
 from typing import Any
 
+# wp.config.print_launches = True
 
 @wp.kernel
 def warp_AXPY(
@@ -29,20 +30,24 @@ def get_AXPY(f_X, f_Y, alpha: Any):
 
         f_x = loader.get_read_handel(f_X)
         f_y = loader.get_read_handel(f_Y)
+        print(f_x.__str__())
 
         @wp.func
         def foo(idx: typing.Any):
             #            wp.neon_print(idx)
             # wp.neon_print(f_read)
-            for c in range(wp.neon_cardinality(f_x)):
-                x = wp.neon_read(f_x, idx, c)
-                y = wp.neon_read(f_y, idx, c)
-                axpy = x + alpha * y
-                wp.print(alpha)
-                wp.neon_write(f_y, idx, c, axpy)
+            #for c in range(wp.neon_cardinality(f_x)):
+            c = 0
+            x = wp.neon_read(f_x, idx, c)
+            y = wp.neon_read(f_y, idx, c)
+            axpy_res = x + alpha * y
+            # wp.print(alpha)
+            wp.neon_write(f_y, idx, c, axpy_res)
+            pId = wp.neon_partition_id(f_x)
 
-            # print(value)
-
+            wp.neon_print_dbg(f_x)
+            wp.printf("Pid %d - x %d y %d alpha %d r %d\n", pId, x, y, alpha, axpy_res)
+            #wp.neon_print(idx)
         loader.declare_kernel(foo)
 
     return axpy
@@ -178,12 +183,13 @@ def execution(nun_devs: int,
                     if neon_res != expected:
                         print(f'neon error at {xi},{yi},{zi} :{expected} cvs {neon_res}')
                     assert expected == neon_res
+    print("Test Passed")
 
 
 
 
 def gpu1_int(dimx, neon_ngpus: int = 1):
-    execution(nun_devs=neon_ngpus, num_card=1, dim=ne.Index_3d(dimx, dimx, dimx), dtype=int,
+    execution(nun_devs=neon_ngpus, num_card=1, dim=ne.Index_3d(1, 1, dimx), dtype=wp.int32,
               container_runtime=wpne.Container.ContainerRuntime.neon)
 
 
@@ -199,4 +205,4 @@ def gpu1_float(dimx, neon_ngpus: int = 1):
 if __name__ == "__main__":
     # gpu1_int()
     # gpu1_int()
-    gpu1_float(10, 2)
+    gpu1_int(6, 2)

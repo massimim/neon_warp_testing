@@ -22,18 +22,20 @@ def _register_dense_headers():
     include_path = os.path.abspath(os.path.dirname(__file__))
     _add_header(f"{include_path}/dense/dSpan.h")
     _add_header(f"{include_path}/dense/dPartition.h")
+    _add_header(f"{include_path}/dense/dIndex.h")
 
 def _register_base_builtins():
-    from wpne import idx_3d, data_view, ngh_idx
+    from wpne import index_3d, data_view, ngh_idx
 
-    idx_3d.register_builtins()
+    index_3d.register_builtins()
     data_view.register_builtins()
     ngh_idx.register_builtins()
 
 
 def _register_dense_builtins():
-    from .dense import span, partition
+    from .dense import dIndex, span, partition
 
+    dIndex.register_builtins()
     span.register_builtins()
     partition.register_builtins()
 

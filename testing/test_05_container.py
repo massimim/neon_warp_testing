@@ -7,7 +7,6 @@ import warp as wp
 import wpne
 import py_neon as ne
 from py_neon import Index_3d
-from py_neon.dense import dSpan
 import typing
 
 
@@ -23,10 +22,10 @@ def get_solver_operator_container(field):
             wp.neon_print(idx)
             # wp.neon_print(f_read)
             value = wp.neon_read(f_read, idx, 0)
-            value = (value +
-                     wp.neon_get_x(idx) +
-                     wp.neon_get_y(idx) +
-                     wp.neon_get_z(idx))
+            cartesianIdx = wp.neon_global_idx(f_read, idx)
+            extra = wp.neon_get_x(cartesianIdx) + wp.neon_get_y(cartesianIdx) + wp.neon_get_z(cartesianIdx)
+            wp.printf("Position (%d %d %d) read %d extra %d\n", wp.neon_get_x(cartesianIdx), wp.neon_get_y(cartesianIdx), wp.neon_get_z(cartesianIdx), value, extra)
+            value = value + extra
             wp.print(value)
 
             # value = value + int(idx.x)
@@ -77,6 +76,7 @@ def test_container_int():
             for x in range(0, dim.x):
                 idx = Index_3d(x, y, z)
                 newValue = set_value(idx)
+                print(f"Init@({x},{y},{z}): [value]{newValue} ")
                 field.write(idx=idx,
                             cardinality=0,
                             newValue=newValue)
@@ -103,14 +103,15 @@ def test_container_int():
             for x in range(0, dim.x):
                 idx = Index_3d(x, y, z)
                 newValue = set_value(idx)
+                newValue = newValue*3
                 newValueRead = field.read(idx=idx,
                                           cardinality=0)
-                different = (newValue * 2) - newValueRead
+                different = (newValue ) - newValueRead
                 if different != 0:
-                    print(f"Error: {newValue} != {newValueRead}, {different}")
+                    print(f"Error@({x},{y},{z}): [expected]{newValue} != {newValueRead}[read], {different}")
 
     pass
 
 
 if __name__ == "__main__":
-    _container_int()
+    test_container_int()
