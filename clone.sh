@@ -7,14 +7,12 @@ if [ "$1" == "ssh" ]; then
   USE_SSH=true
 fi
 
+WAPR_REPRO="https://github.com/nvlukasz/warp.git"
 # Set the repository URLs based on the argument
 if [ "$USE_SSH" == true ]; then
   NEON_REPO="git@github.com:Autodesk/Neon.git"
-  # WARP_REPO="git@github.com:massimim/warp.git"
-  WARP_REPO="https://github.com/massimim/warp.git"
 else
   NEON_REPO="https://github.com/Autodesk/Neon.git"
-  WARP_REPO="https://github.com/massimim/warp.git"
 fi
 
 rm -fr neon
