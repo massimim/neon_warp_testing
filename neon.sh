@@ -1,9 +1,11 @@
 set -e 
 set -x
+
 if [ -z "$1" ]; then
-  echo "Usage: $0 {build|compile}"
+  echo "Usage: $0 {build|compile} [debug|release]"
   echo "  build: Build the Neon Python bindings from scratch."
-  echo "  compile: Compile the current builf of the Neon Python bindings."
+  echo "  compile: Compile the current build of the Neon Python bindings."
+  echo "  [debug|release]: Optional. The build type. Default is 'release'."
   exit 1
 fi
 
@@ -12,17 +14,23 @@ if [ "$1" != "build" ] && [ "$1" != "compile" ]; then
   exit 1
 fi
 
+BUILD_TYPE=${2:-release}
+
+if [ "$BUILD_TYPE" != "debug" ] && [ "$BUILD_TYPE" != "release" ]; then
+  echo "Error: Invalid build type. Use 'debug' or 'release'."
+  exit 1
+fi
 
 if [ "$1" == "build" ]; then
   pushd .
-  rm -fr ./neon/cmake-build-debug
-  mkdir -p ./neon/cmake-build-debug
-  cd ./neon/cmake-build-debug
-  cmake -DCMAKE_BUILD_TYPE=Debug ..
+  rm -fr ./neon/build
+  mkdir -p ./neon/build
+  cd ./neon/build
+  cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE^} ..
   popd
 fi
 
 pushd .
-cd neon/cmake-build-debug
+cd neon/build
 cmake --build . --target libNeonPy -j 30
 popd
