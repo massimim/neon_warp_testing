@@ -3,11 +3,12 @@
 The following lines reproduce the issue when running the mres with warp.
 
 ```bash
-./clean.sh; ./clone.sh ssh; ./neon.sh build; ./warp.sh build; source env.sh export; ./xlb.sh mres ssh
+pip3 install nvtx matplotlib pyvista
+./clean.sh; ./clone.sh http; ./neon.sh build; ./warp.sh build; source env.sh export; ./xlb.sh mres http
 cd XLB/examples/performance/
 python3 ./mlups_3d_multires_solver.py 5 1000000 neon fp32/fp32 -
 ```
-If ssh keys are not setup, any ssh parameter in the previous lines can be replaced with http
+If ssh keys are setup, any ssh parameter in the previous lines can be replaced with ssh
 
 The detected error is the following:
 ```
