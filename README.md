@@ -7,6 +7,7 @@ The following lines reproduce the issue when running the mres with warp.
 cd XLB/examples/performance/
 python3 ./mlups_3d_multires_solver.py 5 1000000 neon fp32/fp32 -
 ```
+If ssh keys are not setup, any ssh parameter in the previous lines can be replaced with http
 
 The detected error is the following:
 ```
