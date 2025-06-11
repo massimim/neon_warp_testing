@@ -4,7 +4,12 @@ The following lines reproduce the issue when running the mres with warp.
 
 ```bash
 pip3 install nvtx matplotlib pyvista
-./clean.sh; ./clone.sh http; ./neon.sh build; ./warp.sh build; source env.sh export; ./xlb.sh mres http
+./clean.sh
+./clone.sh http
+./neon.sh build
+./warp.sh build
+source env.sh export
+./xlb.sh mres http
 cd XLB/examples/performance/
 python3 ./mlups_3d_multires_solver.py 5 1000000 neon fp32/fp32 -
 ```
