@@ -19,5 +19,4 @@ rm -fr neon
 rm -fr warp
 
 git clone $NEON_REPO -b py-local-src neon
-git clone $WARP_REPO -b external-source-support warp
-
+git clone $WARP_REPO -b external-source-support-update2 warp
