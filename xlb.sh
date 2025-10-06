@@ -17,9 +17,9 @@ if [ "$PROTOCOL" != "ssh" ] && [ "$PROTOCOL" != "http" ]; then
 fi
 
 if [ "$PROTOCOL" == "ssh" ]; then
-  REPO_URL="git@github.com:Autodesk/XLB.git"
+  REPO_URL="git@github.com:hsalehipour/XLB.git"
 else
-  REPO_URL="https://github.com/Autodesk/XLB.git"
+  REPO_URL="https://github.com/hsalehipour/XLB.git"
 fi
 
 echo "Cloning branch '$BRANCH_NAME' using protocol '$PROTOCOL'..."

@@ -1,4 +1,4 @@
-set -e 
+set -e
 set -x
 
 if [ -z "$1" ]; then
@@ -26,6 +26,7 @@ if [ "$1" == "build" ]; then
   rm -fr ./neon/build
   mkdir -p ./neon/build
   cd ./neon/build
+  # cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE^} -DNEON_ACTIVATE_TRACING=ON ..
   cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE^} ..
   popd
 fi
