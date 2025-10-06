@@ -7,24 +7,24 @@ echo "Git Repository Status"
 echo "====================="
 echo ""
 
-# Check neon repository
-if [ -d "$SCRIPT_DIR/neon/.git" ]; then
-    echo "neon:  $(cd "$SCRIPT_DIR/neon" && git rev-parse HEAD)"
-else
-    echo "neon:  Not a git repository"
-fi
+# List of repositories to check
+REPOS=("neon" "XLB" "warp")
 
-# Check XLB repository
-if [ -d "$SCRIPT_DIR/XLB/.git" ]; then
-    echo "XLB:   $(cd "$SCRIPT_DIR/XLB" && git rev-parse HEAD)"
-else
-    echo "XLB:   Not a git repository"
-fi
-
-# Check warp repository
-if [ -d "$SCRIPT_DIR/warp/.git" ]; then
-    echo "warp:  $(cd "$SCRIPT_DIR/warp" && git rev-parse HEAD)"
-else
-    echo "warp:  Not a git repository"
-fi
+# Loop through each repository
+for repo in "${REPOS[@]}"; do
+    if [ -d "$SCRIPT_DIR/$repo/.git" ]; then
+        echo "$repo:"
+        echo "  Hash:   $(cd "$SCRIPT_DIR/$repo" && git rev-parse HEAD)"
+        echo "  Remote: $(cd "$SCRIPT_DIR/$repo" && git remote get-url origin 2>/dev/null || echo 'No remote configured')"
+        if [ -z "$(cd "$SCRIPT_DIR/$repo" && git status --porcelain)" ]; then
+            echo "  Status: clean"
+        else
+            echo "  Status: dirty"
+        fi
+        echo ""
+    else
+        echo "$repo:  Not a git repository"
+        echo ""
+    fi
+done
 
