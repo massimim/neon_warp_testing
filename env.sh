@@ -21,7 +21,14 @@ CWD="${PWD:-$(pwd -P)}"
 
 # NOTE: original had PYTHON_PATH; correct var name is PYTHONPATH
 PYTHONPATH_NEW="${CWD}/neon/py:${CWD}/XLB${PYTHONPATH:+:${PYTHONPATH}}"
-LD_LIBRARY_PATH_NEW="${CWD}/neon/build/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+# LD_LIBRARY_PATH_NEW="${CWD}/neon/build/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+LD_LIBRARY_PATH_NEW=$LD_LIBRARY_PATH
+LD_LIBRARY_PATH_NEW="${CWD}/neon/build/libNeonPy:${LD_LIBRARY_PATH_NEW}"
+LD_LIBRARY_PATH_NEW="${CWD}/neon/build/libNeonSkeleton:${LD_LIBRARY_PATH_NEW}"
+LD_LIBRARY_PATH_NEW="${CWD}/neon/build/libNeonSet:${LD_LIBRARY_PATH_NEW}"
+LD_LIBRARY_PATH_NEW="${CWD}/neon/build/libNeonSys:${LD_LIBRARY_PATH_NEW}"
+LD_LIBRARY_PATH_NEW="${CWD}/neon/build/libNeonDomain:${LD_LIBRARY_PATH_NEW}"
+LD_LIBRARY_PATH_NEW="${CWD}/neon/build/libNeonCore:${LD_LIBRARY_PATH_NEW}"
 
 # --- apply or print ---
 if [ "$MODE" = "export" ]; then
